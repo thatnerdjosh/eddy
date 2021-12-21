@@ -19,7 +19,7 @@ elm_main(int argc, char **argv)
 
     elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
-    win = elm_win_util_standard_add("Main", "Hello, World!");
+    win = elm_win_util_standard_add("Main", "Eddy - Live USB Creator");
     elm_win_autodel_set(win, EINA_TRUE); //set close window
     evas_object_resize(win, 400, 400); //set win size
     
