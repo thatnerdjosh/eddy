@@ -60,7 +60,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	win = elm_win_util_standard_add("main", "Eddy - Live USB Utility");
 	elm_win_autodel_set(win, EINA_TRUE);
 	
-	evas_object_size_hint_min_set(win,350,300);
+	evas_object_size_hint_min_set(win,420,300); //min window size
 
 	//make grid
 	grid = elm_grid_add(win);
@@ -72,10 +72,6 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	* relevant file types for each button*/
 		
 	/* MD5 selector button */
-	ic1 = elm_icon_add(win);
-	elm_icon_standard_set(ic1, "file");
-	evas_object_size_hint_aspect_set(ic1,EVAS_ASPECT_CONTROL_HORIZONTAL,1,1);
-
 
 	md5_bt = elm_fileselector_button_add(grid);
 	elm_fileselector_path_set(md5_bt, "/home/");
@@ -84,40 +80,37 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_fileselector_folder_only_set(md5_bt, EINA_FALSE);
 	elm_fileselector_is_save_set(md5_bt, EINA_TRUE);
 	elm_object_text_set(md5_bt, "Select MD5");
-	elm_object_part_content_set(md5_bt, "icon", ic1);
 
-	elm_grid_pack_set(md5_bt,2,2,26,9);//this sets size, not evas resize?
+	elm_grid_pack_set(md5_bt,2,2,26,11);//this sets size, not evas resize.
 	evas_object_show(md5_bt);
-	evas_object_show(ic1);
-	
-	
-	
-	/* Md5 Check Button */
-	
-	md5_check_bt = elm_button_add(grid);
-	elm_button_autorepeat_set(md5_check_bt, EINA_FALSE);
-	elm_object_text_set(md5_check_bt, "Check md5sum");
-	elm_grid_pack_set(md5_check_bt,2,12,26,9);
-	evas_object_show(md5_check_bt);
-	
 	
 	/* MD5 text entry */
 	entry1 = elm_entry_add(grid);
 	elm_entry_line_wrap_set(entry1, EINA_FALSE);
 	elm_entry_editable_set(entry1, EINA_FALSE);
-	elm_grid_pack_set(entry1,30,2,42,9);
+	elm_grid_pack_set(entry1,30,2,50,11);
 	evas_object_show(entry1);
+	
+		
+	/* Md5 Check Button */
+	md5_check_bt = elm_button_add(grid);
+	elm_button_autorepeat_set(md5_check_bt, EINA_FALSE);
+	elm_object_text_set(md5_check_bt, "Check md5sum");
+	elm_grid_pack_set(md5_check_bt,2,14,26,11);
+	evas_object_show(md5_check_bt);
+	
+	// separator line
+	sep = elm_separator_add(win);
+	elm_separator_horizontal_set(sep, EINA_TRUE);
+	elm_grid_pack(grid,sep,1,27,100,1);
+	evas_object_show(sep);	
+
 	
 	
 	/*TODO: move ISO button into group with final DD button and use only
-	* md5 button for checking the md5 with, since that's all we need anyway.
+	* md5 button for checking the md5 since that's all we need anyway.
 
 	/* ISO selector button */
-	//are these icons doing anything??
-	ic2 = elm_icon_add(win);
-	elm_icon_standard_set(ic2, "file");
-	evas_object_size_hint_aspect_set(ic2,EVAS_ASPECT_CONTROL_HORIZONTAL,1,1);
-	
 	iso_bt = elm_fileselector_button_add(grid);
 	elm_fileselector_path_set(iso_bt, "/home/");
 	elm_fileselector_button_inwin_mode_set(iso_bt, EINA_TRUE);
@@ -125,26 +118,19 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_fileselector_folder_only_set(iso_bt, EINA_FALSE);
 	elm_fileselector_is_save_set(iso_bt, EINA_TRUE);
 	elm_object_text_set(iso_bt, "Select ISO");
-	elm_object_part_content_set(iso_bt, "icon", ic1);
 
-	elm_grid_pack_set(iso_bt,2,30,26,9);
+	elm_grid_pack_set(iso_bt,2,30,26,11);
 	evas_object_show(iso_bt);
-	evas_object_show(ic2);
 
 	/* ISO text entry */
-	entry1 = elm_entry_add(grid);
+	entry2 = elm_entry_add(grid);
 	elm_entry_line_wrap_set(entry2, EINA_FALSE);
 	elm_entry_editable_set(entry2, EINA_FALSE);
-	evas_object_size_hint_min_set(entry2,140,25);
-	elm_grid_pack_set(entry2,30,30,42,9);
+	elm_grid_pack_set(entry2,30,30,42,11);
 	evas_object_show(entry2);
 
 	
-	// separator line
-	sep = elm_separator_add(win);
-	elm_separator_horizontal_set(sep, EINA_TRUE);
-	elm_grid_pack(grid,sep,1,60,100,1);
-	evas_object_show(sep);
+
 	
 	
 	//add callbacks for buttons
@@ -152,8 +138,8 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_smart_callback_add(iso_bt,"file,chosen",iso_chosen, entry2);
 	evas_object_smart_callback_add(md5_check_bt,"clicked",md5_check,NULL);
 	
-	//set final window size and display it
-	evas_object_resize(win, 430, 340);
+	/* set final window size and display it */
+	evas_object_resize(win, 420, 300);//start at min size
 	//evas_object_show(grid);
 	evas_object_show(win);
 
