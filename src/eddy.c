@@ -1,7 +1,7 @@
 //  gcc -o eddy eddy.c `pkg-config --cflags --libs eina efl elementary`
 
 /* TODO:
- * add md5 checker button and make it work
+ *
  * add USB drive selector and checker
  * add ISO installer button using dd command */
 
@@ -40,12 +40,20 @@ md5_chosen(void *data EINA_UNUSED,Evas_Object *obj EINA_UNUSED,void *event_info)
 
 /* Check selected md5 file against ISO.  ISO must be in same folder. */
 
+/* Check selected md5 file against ISO.  ISO must be in same folder. */
+
+//make progress bar to work with popen command.
+
 static void 
-md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e EINA_UNUSED)
+md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 {	
 	int i;
-	char folderPath[450];
-	char fileName[450];
+	FILE *ptr; //Our favorite pointer.  His name is Peter.
+	char ch;
+	char folderPath[PATH_MAX];
+	char fileName[PATH_MAX];
+	char output[PATH_MAX];
+	char command[PATH_MAX];
 	const char *md5Path = elm_object_text_get(data);	
 	
 	if(!*md5Path) {
@@ -65,8 +73,44 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e EINA_UNUSED)
 	}
 	
 	//remove later
-	printf("md5Path: %s\nfolderPath: %s\n",
-		md5Path, folderPath);
+	printf("md5Path: %s\nfolderPath: %s\n", md5Path, folderPath);
+	
+	
+	//build terminal command
+	command[0] == '\0';
+	strcpy(command, "cd ");
+	strcat(command, folderPath);
+	strcat(command, " && md5sum -c ");
+	strcat(command, md5Path);
+	
+	printf("%s\n", command);//remove later
+	
+	
+	/*execute md5 check.  
+	* md5sum requires .ISO and .md5 files to be in the same folder!
+	*/
+	ptr = popen(command, "r");
+	
+	if(!ptr){//error handling
+		puts("Unable to open process");
+		//need to quit in a better way.
+		exit(0);//just give up.  Best error handler.
+	}
+	
+	/*Capture each character of the command output and print it 
+	* to the terminal while also storing it in an array for later.
+	*/
+	i=0;
+	while( (ch=fgetc(ptr)) != EOF)  {
+		putchar(ch);
+		output[i] = ch;
+		i++;
+	}
+	output[i+1] = '\0'; //add null 0 for safety
+	
+	printf("%s",output);//remove later
+	
+	pclose(ptr); //Let Peter rest.  He worked hard today.
 }
 
 
