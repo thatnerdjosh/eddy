@@ -120,7 +120,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_show(sep);
 	
 	
-	/add callbacks for buttons
+	//add callbacks for buttons
 	evas_object_smart_callback_add(iso_bt, "file,chosen", iso_chosen, entry1);
 	evas_object_smart_callback_add(md5_bt, "file,chosen", md5_chosen, entry2);
 	
