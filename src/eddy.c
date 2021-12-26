@@ -46,12 +46,17 @@ md5_check(void *d EINA_UNUSED,Evas_Object *o EINA_UNUSED,void *event_info)
 	printf("Under Construction!\n");
 }
 
-
+/* Get help window */
+static void 
+help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_info)
+{
+	printf("Help Under Construction!\n");
+}
 
 EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
 	Evas_Object *win, *grid, *hbox, *ic1, *ic2, *entry1, *entry2, *sep;
-	Evas_Object *iso_bt, *md5_bt, *md5_check_bt, *iso_check_bt, *dd_bt;
+	Evas_Object *iso_bt, *md5_bt, *md5_check_bt, *iso_check_bt, *dd_bt, *help_bt;
 	//still need a few labels or icons later.
 
 	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
@@ -129,14 +134,20 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_grid_pack_set(entry2,30,30,42,11);
 	evas_object_show(entry2);
 
+	/* help button */
+	help_bt = elm_button_add(grid);
+	elm_button_autorepeat_set(help_bt, EINA_FALSE);
+	elm_object_text_set(help_bt, "Help");
+	elm_grid_pack_set(help_bt,70,89,30,10);
+	evas_object_show(help_bt);
 	
 
-	
 	
 	//add callbacks for buttons
 	evas_object_smart_callback_add(md5_bt,"file,chosen",md5_chosen, entry1);
 	evas_object_smart_callback_add(iso_bt,"file,chosen",iso_chosen, entry2);
 	evas_object_smart_callback_add(md5_check_bt,"clicked",md5_check,NULL);
+	evas_object_smart_callback_add(help_bt,"clicked",help_info,NULL);
 	
 	/* set final window size and display it */
 	evas_object_resize(win, 420, 300);//start at min size
