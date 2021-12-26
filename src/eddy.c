@@ -10,31 +10,24 @@
 static void 
 iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
-	Evas_Object *entry = data;
 	const char *file = event_info;
-	if (file)
-	{
-		elm_object_text_set(entry, file);
-		printf("File chosen: %s\n", file);
-	}
-	else
-		printf("File selection canceled.\n");
+	Evas_Object *entry = data;
+	elm_object_text_set(entry, file);
+	printf("File Chosen: %s\n",
+          file ? file : "*chosen!*");
 }
 
 
 /*Get md5sum file selected and set it to another visible entry*/
 static void 
-md5_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
+md5_chosen(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
-	Evas_Object *entry = data;
 	const char *file = event_info;
-	if (file)
-	{
-		elm_object_text_set(entry, file);
-		printf("File chosen: %s\n", file);
-	}
-	else
-		printf("File selection canceled.\n");
+	Evas_Object *entry = data;
+	elm_object_text_set(entry, file);
+	
+	printf("File Chosen: %s\n",
+          file ? file : "*none Chosen!*");
 }
 
 
@@ -84,7 +77,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	entry2 = elm_entry_add(grid);
 	elm_entry_line_wrap_set(entry2, EINA_FALSE);
 	elm_entry_editable_set(entry2, EINA_FALSE);
-	evas_object_size_hint_min_set(entry2,140,25);//does this even work??
+	evas_object_size_hint_min_set(entry2,140,25);// The hint isn't enforced just used where appropriate. What are we trying to do?
 	elm_grid_pack_set(entry2,30,3,42,8);
 	evas_object_show(entry2);
 
