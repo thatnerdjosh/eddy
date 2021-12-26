@@ -76,6 +76,23 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e EINA_UNUSED)
 static void 
 help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_info)
 {
+	Evas_Object *win, *conf;
+	
+	win = elm_win_util_standard_add("Help", "Help");
+	elm_win_autodel_set(win, EINA_TRUE);
+	
+	evas_object_size_hint_min_set(win,420,300); //min window size
+
+	//make grid
+	conf = elm_conformant_add(win);
+	evas_object_size_hint_weight_set(conf,EVAS_HINT_EXPAND,EVAS_HINT_EXPAND);
+	elm_win_resize_object_add(win, conf);
+	
+	evas_object_size_hint_min_set(conf,400,250);
+	
+	evas_object_show(conf);
+	evas_object_show(win);
+	
 	printf("Help Under Construction!\n");
 }
 
