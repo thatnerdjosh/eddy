@@ -41,10 +41,36 @@ md5_chosen(void *data EINA_UNUSED,Evas_Object *obj EINA_UNUSED,void *event_info)
 /* Check selected md5 file against ISO.  ISO must be in same folder. */
 
 static void 
-md5_check(void *d EINA_UNUSED,Evas_Object *o EINA_UNUSED,void *event_info)
-{
-	printf("Under Construction!\n");
+md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e EINA_UNUSED)
+{	
+	int i;
+	char folderPath[450];
+	char fileName[450];
+	const char *md5Path = elm_object_text_get(data);	
+	
+	if(!*md5Path) {
+		printf("No md5 file chosen yet!\n");
+		return;
+	}
+	//set folderPath directory with string wizardry
+	for (i = strlen(md5Path); i > 0; i--){
+		if (md5Path[i] != '/'){//ignore file name
+			continue;
+		}
+		folderPath[i+1] = '\0';//pad string with null zero
+		for (; i >= 0; i--){
+			folderPath[i] = md5Path[i];//set folderPath
+		}
+		break;
+	}
+	
+	//remove later
+	printf("md5Path: %s\nfolderPath: %s\n",
+		md5Path, folderPath);
 }
+
+
+
 
 /* Get help window */
 static void 
@@ -53,10 +79,14 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 	printf("Help Under Construction!\n");
 }
 
+
+
+
 EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
 	Evas_Object *win, *grid, *hbox, *ic1, *ic2, *entry1, *entry2, *sep;
-	Evas_Object *iso_bt, *md5_bt, *md5_check_bt, *iso_check_bt, *dd_bt, *help_bt;
+	Evas_Object *iso_bt, *md5_bt, *md5_check_bt, *iso_check_bt, *dd_bt;
+	Evas_Object *help_bt;
 	//still need a few labels or icons later.
 
 	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
@@ -64,7 +94,9 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	//set up window
 	win = elm_win_util_standard_add("main", "Eddy - Live USB Utility");
 	elm_win_autodel_set(win, EINA_TRUE);
-	
+
+	elm_app_name_set("Eddy");
+
 	evas_object_size_hint_min_set(win,420,300); //min window size
 
 	//make grid
@@ -112,9 +144,9 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	
 	
-	/*TODO: move ISO button into group with final DD button and use only
-	* md5 button for checking the md5 since that's all we need anyway.
-
+	/* put ISO button into group with final DD button and use only
+	*  md5 button for checking the md5 since that's all we need anyway.
+	*/
 	/* ISO selector button */
 	iso_bt = elm_fileselector_button_add(grid);
 	elm_fileselector_path_set(iso_bt, "/home/");
@@ -138,7 +170,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	help_bt = elm_button_add(grid);
 	elm_button_autorepeat_set(help_bt, EINA_FALSE);
 	elm_object_text_set(help_bt, "Help");
-	elm_grid_pack_set(help_bt,70,89,30,10);
+	elm_grid_pack_set(help_bt,84,89,15,10);
 	evas_object_show(help_bt);
 	
 
@@ -146,7 +178,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	//add callbacks for buttons
 	evas_object_smart_callback_add(md5_bt,"file,chosen",md5_chosen, entry1);
 	evas_object_smart_callback_add(iso_bt,"file,chosen",iso_chosen, entry2);
-	evas_object_smart_callback_add(md5_check_bt,"clicked",md5_check,NULL);
+	evas_object_smart_callback_add(md5_check_bt,"clicked",md5_check,entry1);
 	evas_object_smart_callback_add(help_bt,"clicked",help_info,NULL);
 	
 	/* set final window size and display it */
