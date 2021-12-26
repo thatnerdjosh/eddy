@@ -44,8 +44,8 @@ md5_chosen(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_inf
 
 EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
-	Evas_Object *win, *grid, *hbox, *ic1, *ic2, *ic3, *ic4;
-	Evas_Object *iso_bt, *md5_bt, *dd_bt, *cancel_bt, *entry1, *entry2, *sep;
+	Evas_Object *win, *grid, *hbox, *ic1, *ic2;
+	Evas_Object *iso_bt, *md5_bt, *entry1, *entry2, *sep;
 
 	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
@@ -119,37 +119,11 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_grid_pack(grid,sep,1,60,100,1);
 	evas_object_show(sep);
 	
-	/* Create live usb button (ok) called dd_bt */
-	ic3 = elm_icon_add(grid);
-	elm_icon_standard_set(ic3, "Ok");
-	evas_object_size_hint_aspect_set(ic3,EVAS_ASPECT_CONTROL_HORIZONTAL,1,1);
 	
-	dd_bt = elm_button_add(grid);
-	elm_object_text_set(dd_bt, "Ok");
-	evas_object_resize(dd_bt, 100, 30);
-	elm_grid_pack_set(dd_bt,3,50,20,9); // change coordinates/values: x,y,w,h
-	evas_object_show(dd_bt);
-	evas_object_show(ic3);
-	
-	/* Cancel button.*/
-	ic4 = elm_icon_add(grid);
-	elm_icon_standard_set(ic4, "cancel");
-	evas_object_size_hint_aspect_set(ic4,EVAS_ASPECT_CONTROL_HORIZONTAL,1,1);
-	
-	cancel_bt = elm_button_add(grid);
-	elm_object_text_set(cancel_bt, "cancel");
-	evas_object_resize(cancel_bt, 100, 30);
-	elm_grid_pack_set(cancel_bt,25,50,20,9); // change coordinates/values: x,y,w,h
-	evas_object_show(cancel_bt);
-	evas_object_show(ic3);
-	
-
-	//add callbacks for buttons
+	/add callbacks for buttons
 	evas_object_smart_callback_add(iso_bt, "file,chosen", iso_chosen, entry1);
 	evas_object_smart_callback_add(md5_bt, "file,chosen", md5_chosen, entry2);
-	//evas_object_smart_callback_add(ok_bt, "ok,clicked" , clicked, make_iso);
-	//evas_object_smart_callback_add(cancel_bt, "cancel,clicked, cancel, cancelled);
-
+	
 	evas_object_resize(win, 430, 340);
 	//   evas_object_show(grid);
 	evas_object_show(win);
