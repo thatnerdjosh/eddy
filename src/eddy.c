@@ -76,23 +76,35 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e EINA_UNUSED)
 static void 
 help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_info)
 {
-	Evas_Object *win, *conf;
-	
-	win = elm_win_util_standard_add("Help", "Help");
-	elm_win_autodel_set(win, EINA_TRUE);
-	
-	evas_object_size_hint_min_set(win,420,300); //min window size
+	Evas_Object *help_win, *conf, *scroller, *text, *label;
 
-	//make grid
-	conf = elm_conformant_add(win);
-	evas_object_size_hint_weight_set(conf,EVAS_HINT_EXPAND,EVAS_HINT_EXPAND);
-	elm_win_resize_object_add(win, conf);
+	help_win = elm_win_util_standard_add("Help", "Help");
+	elm_win_autodel_set(help_win, EINA_TRUE);
 	
-	evas_object_size_hint_min_set(conf,400,250);
+	/* make inwin */
+	//~ conf = elm_win_inwin_add(help_win);
+	//~ evas_object_size_hint_weight_set(conf,EVAS_HINT_EXPAND,EVAS_HINT_EXPAND);
+	//~ elm_win_resize_object_add(help_win, conf);
+	//~ evas_object_size_hint_min_set(conf,419,299);
 	
-	evas_object_show(conf);
-	evas_object_show(win);
-	
+
+	/* Add scroller to inwin text box */
+	scroller = elm_scroller_add(help_win);
+	evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	elm_win_resize_object_add(help_win, scroller);
+	evas_object_show(scroller);
+	elm_object_content_set(scroller, label);
+	elm_scroller_bounce_set(scroller, EINA_TRUE, EINA_FALSE);
+	elm_scroller_policy_set(scroller, ELM_SCROLLER_POLICY_ON, ELM_SCROLLER_POLICY_ON);
+	elm_scroller_propagate_events_set(scroller, EINA_TRUE);
+	elm_scroller_page_relative_set(scroller, 0, 1);
+	elm_scroller_region_show(scroller, 50, 50, 200, 200);
+	evas_object_size_hint_min_set(help_win,200,200); //min window size
+
+	evas_object_resize(scroller, 200, 200);
+	evas_object_resize(help_win, 300, 300);
+	evas_object_show(help_win);
+	//~ evas_object_show(conf);
 	printf("Help Under Construction!\n");
 }
 
