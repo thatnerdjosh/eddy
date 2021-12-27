@@ -120,41 +120,32 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 static void 
 help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_info)
 {
-	Evas_Object *help_win, *scroller, *text;
-	
+   Evas_Object *win, *scroller, *label;
+
 	/* help main window */  
-	help_win = elm_win_util_standard_add("Help", "Help");
-	elm_win_autodel_set(help_win, EINA_TRUE);
-	evas_object_size_hint_min_set(help_win,250,280); //min window size
-	
-	/* make text box */
-	text = elm_box_add(help_win);
-	evas_object_size_hint_weight_set(text,EVAS_HINT_EXPAND,EVAS_HINT_EXPAND);
-	elm_win_resize_object_add(help_win, text);
-	evas_object_size_hint_min_set(text,250,280);
-	
-	
+   win = elm_win_util_standard_add("Help", "Help");
+   elm_win_autodel_set(win, EINA_TRUE);
+   evas_object_size_hint_min_set(win,250,280); //min window size
+ 
+   label = elm_label_add(win);
+   elm_object_text_set(label, "To perform an MD5 check on your iso, both files MUST be in the same folder!");
+   evas_object_show(label);
 
-	/* Add scroller to text box */
-	scroller = elm_scroller_add(text);
-	evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	elm_win_resize_object_add(text, scroller);
-	elm_object_content_set(scroller, text);
-	elm_scroller_bounce_set(scroller, EINA_TRUE, EINA_FALSE);
-	elm_scroller_policy_set(scroller, ELM_SCROLLER_POLICY_ON, ELM_SCROLLER_POLICY_ON);
-	elm_scroller_propagate_events_set(scroller, EINA_TRUE);
-	elm_scroller_page_relative_set(scroller, 0, 1);
-	elm_scroller_region_show(scroller, 50, 50, 250, 280);
-	evas_object_resize(scroller, 250, 280);
-	
-	evas_object_show(scroller);
-	evas_object_show(text);
-	evas_object_show(help_win);	
-	
-	printf("Help window opened\n");
+   scroller = elm_scroller_add(win);
+   evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   elm_win_resize_object_add(win, scroller);
+   evas_object_show(scroller);
+   elm_object_content_set(scroller, label);
+   elm_scroller_bounce_set(scroller, EINA_TRUE, EINA_FALSE);
+   elm_scroller_policy_set(scroller, ELM_SCROLLER_POLICY_ON, ELM_SCROLLER_POLICY_ON);
+   elm_scroller_propagate_events_set(scroller, EINA_TRUE);
+   elm_scroller_page_relative_set(scroller, 0, 1);
+   elm_scroller_region_show(scroller, 50, 50, 200, 200);
+   evas_object_resize(win, 480,85);
+
+   evas_object_show(win);	
+   printf("Help window opened\n");
 }
-
-
 
 
 EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
@@ -172,7 +163,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	elm_app_name_set("Eddy");
 
-	evas_object_size_hint_min_set(win,420,300); //min window size
+	evas_object_size_hint_min_set(win,480,85); //min window size
 
 	//make grid
 	grid = elm_grid_add(win);
