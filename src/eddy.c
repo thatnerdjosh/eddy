@@ -2,18 +2,16 @@
 
 /* TODO:
  *
- * Add error handling for file types selected
- *
- * Show result of md5 check in text entry
- *
  * Get progress bar working
  *
  * add USB drive selector and checker
  *
- * add ISO installer button using dd command 
+ * add ISO installer button using dd command
  */
 
 #include <Elementary.h>
+#include <time.h>
+#include <string.h>
 
 Evas_Object *entry3;
 
@@ -28,33 +26,39 @@ typedef struct Progbar
 static Progbar pbar;
 
 /* more progressbar setup */
-static Eina_Bool
-progressbar_go(void *data EINA_UNUSED)
+/*
+static Eina_Bool progressbar_go(void *data EINA_UNUSED)
 {
    double progress;
    progress = elm_progressbar_value_get(pbar.pb1);
    if (progress < 1.0) progress += 0.0123;
    else progress = 0.0;
-   /* just the non-pulsing ones need an update */
    elm_progressbar_value_set(pbar.pb1, progress);
    if (progress < 1.0) return ECORE_CALLBACK_RENEW;
    pbar.run = 0;
    return ECORE_CALLBACK_CANCEL;
 }
+*/
 
-//these functions are example code only.  Needs updating to be useful.
+
 
 /* get the ISO selected and set it to a visible entry*/
 static void 
 iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
-/*need to add error handling in case a directory is selected*/
+
 	const char *file = event_info;
 	Evas_Object *entry = data;
+	
+	int i = strlen(file);
+	//filetype filter
+	if( file[i-4]!='.'&&file[i-3]!='i'&&file[i-2]!='s'&&file[i-1]!='o'){
+		printf("Wrong file type!  Try again.\n");
+		return;
+	}
 	elm_object_text_set(entry, file);
 	
-	printf("File Chosen: %s\n", file ? file : "*none chosen!*");
-    
+	//printf("File Chosen: %s\n", file ? file : "*none chosen!*");    
 }
 
 
@@ -63,21 +67,21 @@ iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 static void 
 md5_chosen(void *data EINA_UNUSED,Evas_Object *obj EINA_UNUSED,void *event_info)
 {
-/*need to add error handling in case a directory is selected*/
+
 	const char *file = event_info;
 	Evas_Object *entry = data;
 	
 	int i = strlen(file);
 	
-	//filter chosen file type.
-	if(file[i-3] != 'm' && file[i-2] != 'd' && file[i-1] != '5'){
+	//filetype filter
+	if(file[i-4]!='.'&&file[i-3]!='m'&&file[i-2]!='d'&&file[i-1]!='5'){
 		printf("Wrong file type!  Try again.\n");
 		return;
 	}
 	
 	elm_object_text_set(entry, file);
 	
-	printf("File Chosen: %s\n", file ? file : "*none Chosen!*");
+	//printf("File Chosen: %s\n", file ? file : "*none Chosen!*");
 }
 
 
@@ -105,6 +109,19 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 		printf("No md5 file chosen yet!\n");
 		return;
 	}
+	
+	
+	/* how do I start the progress bar?? */
+	elm_progressbar_pulse_set(pbar.pb1, EINA_TRUE);
+	elm_progressbar_pulse(pbar.pb1,EINA_TRUE);
+	/*
+	if (!pbar.run){
+		pbar.timer = ecore_timer_add(0.1, progressbar_go, NULL);
+		pbar.run = EINA_TRUE;
+	}
+	*/
+	
+	
 	/* set folderPath directory with string wizardry */
 	for (i = strlen(md5Path); i > 0; i--){
 		if (md5Path[i] != '/'){//ignore file name
@@ -118,7 +135,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	}
 	
 	//remove later
-	printf("md5Path: %s\nfolderPath: %s\n", md5Path, folderPath);
+	//printf("md5Path: %s\nfolderPath: %s\n", md5Path, folderPath);
 	
 	
 	//build terminal command
@@ -128,14 +145,9 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	strcat(command, " && md5sum -c ");
 	strcat(command, md5Path);
 	
-	printf("%s\n", command);//remove later
+	//printf("%s\n", command);//remove later
 	
-	/* how do I start the progress bar?? */
-	elm_progressbar_pulse(pbar.pb1, EINA_TRUE);
-	if (!pbar.run){
-		pbar.timer = ecore_timer_add(0.1, progressbar_go, NULL);
-		pbar.run = EINA_TRUE;
-	}
+
 	
 	/*execute md5 check.  
 	* md5sum requires .ISO and .md5 files to be in the same folder!
@@ -157,19 +169,23 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 		output[i] = ch;
 		i++;
 	}
-	output[i+1] = '\0'; //add null 0 for safety
+	output[i+1] = '\0'; //safety pads
 	//printf("%s\n", output);
 	pclose(ptr); //Let Peter rest.  He worked hard today.
 	
 	//stop progress bar...  none of this works.
 	elm_progressbar_pulse(pbar.pb1, EINA_FALSE);
+	
+	/*
 	if (pbar.run){
 		ecore_timer_del(pbar.timer);
 		pbar.run = EINA_FALSE;
 	}
+	*/
 	
 		
-	/* get md5sum result */
+	/* get md5sum result in case output needs to be shortened */
+	/*
 	while(output[i] != ':')
 		i--;
 	i += 2;
@@ -179,9 +195,8 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 		j++;
 	}
 	result[j] = '\0';  //safety padding
-	elm_object_text_set(entry3, result);
-		
-	
+	*/
+	elm_object_text_set(entry3, output);//change to 'result' if needed
 }
 
 
@@ -199,8 +214,9 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 	evas_object_size_hint_min_set(help,250,280); //min size not working??
 
 	label = elm_label_add(help);
-	elm_object_text_set(label, "To perform an MD5 check on your iso, <br> \
-	both files MUST be in the same folder!");
+	elm_object_text_set(label, "To perform an MD5sum check on your iso,<br>\
+	both files MUST be in the same folder!<br><br>\
+	Expect more features as time goes on.");
 	evas_object_show(label);
 
 	scroller = elm_scroller_add(help);
@@ -215,8 +231,7 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 	elm_scroller_region_show(scroller, 50, 50, 200, 200);
 	evas_object_resize(help, 300,185);
 
-	evas_object_show(help);	
-	printf("Help window opened\n");
+	evas_object_show(help);
 }
 
 
@@ -235,7 +250,9 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	elm_app_name_set("Eddy");
 
-	/*this line fails after choosing a file??*/
+	/*this line stops working after choosing a file??
+	* Main window becomes resizeable to 259x180.  Why?
+	*/
 	evas_object_size_hint_min_set(win,420,300); //min window size
 
 	//make grid
@@ -245,7 +262,8 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_show(grid);
 
 	/*need to add filters to the fileselectors so they only show the
-	* relevant file types for each button if possible*/
+	* relevant file types for each button if possible
+	*/
 		
 	/* MD5 selector button */
 
@@ -282,14 +300,6 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_grid_pack_set(entry3,33,15,60,11);
 	evas_object_show(entry3);
 	
-	/* progress bar */
-   pb = elm_progressbar_add(grid);
-   evas_object_size_hint_align_set(pb, EVAS_HINT_FILL, 0.5);
-   evas_object_size_hint_weight_set(pb, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-   elm_progressbar_pulse_set(pb, EINA_TRUE);
-   elm_grid_pack_set(pb,0,93,100,8);
-   evas_object_show(pb);
-   pbar.pb1 = pb;
 	
 	// separator line
 	sep = elm_separator_add(win);
@@ -318,7 +328,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	entry2 = elm_entry_add(grid);
 	elm_entry_line_wrap_set(entry2, EINA_FALSE);
 	elm_entry_editable_set(entry2, EINA_FALSE);
-	elm_grid_pack_set(entry2,30,35,42,11);
+	elm_grid_pack_set(entry2,33,36,60,11);
 	evas_object_show(entry2);
 
 	/* help button */
@@ -327,6 +337,20 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_object_text_set(help_bt, "Help");
 	elm_grid_pack_set(help_bt,84,83,15,10);
 	evas_object_show(help_bt);
+	
+	
+	
+	/* progress bar */
+	
+	//totally broken... Pulsing isn't working at all.
+	pb = elm_progressbar_add(grid);
+	evas_object_size_hint_align_set(pb, EVAS_HINT_FILL, 0.5);
+	evas_object_size_hint_weight_set(pb, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	elm_progressbar_pulse_set(pb, EINA_TRUE);
+	elm_progressbar_unit_format_set(pb, NULL);
+	elm_grid_pack_set(pb,0,90,100,12);
+	evas_object_show(pb);
+	pbar.pb1 = pb;
 	
 
 	
@@ -337,8 +361,9 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_smart_callback_add(help_bt,"clicked",help_info,NULL);
 	
 	/* set final window size and display it */
+	
 	evas_object_resize(win, 420, 300);//start at min size
-	//evas_object_show(grid);
+	evas_object_show(grid);  //is this needed?
 	evas_object_show(win);
 
 	elm_run();
