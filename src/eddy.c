@@ -13,7 +13,7 @@
 #include <time.h>
 #include <string.h>
 
-Evas_Object *entry3, *pb;
+Evas_Object *entry2, *pb;
 
 
 /* get the ISO selected and set it to a visible entry*/
@@ -24,9 +24,12 @@ iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 	const char *file = event_info;
 	Evas_Object *entry = data;
 	
+	if(!file)
+		return;
+
 	int i = strlen(file);
 	//filetype filter
-	if( file[i-4]!='.'&&file[i-3]!='i'&&file[i-2]!='s'&&file[i-1]!='o'){
+	if(file[i-4]!='.'&&file[i-3]!='i'&&file[i-2]!='s'&&file[i-1]!='o'){
 		printf("Wrong file type!  Try again.\n");
 		return;
 	}
@@ -36,7 +39,7 @@ iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 }
 
 
-/*Get md5sum file selected and set it to another visible entry*/
+/*Get md5 file selected and set it to another visible entry*/
 
 static void 
 md5_chosen(void *data EINA_UNUSED,Evas_Object *obj EINA_UNUSED,void *event_info)
@@ -45,6 +48,9 @@ md5_chosen(void *data EINA_UNUSED,Evas_Object *obj EINA_UNUSED,void *event_info)
 	const char *file = event_info;
 	Evas_Object *entry = data;
 	
+	if(!file)
+		return;
+
 	int i = strlen(file);
 	
 	//filetype filter
@@ -79,7 +85,6 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 		printf("No md5 file chosen yet!\n");
 		return;
 	}
-	
 	
 	/* how do I start the progress bar?? */
 	elm_progressbar_pulse_set(pb, EINA_TRUE);
@@ -121,8 +126,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	
 	if(!ptr){//error handling
 		puts("Unable to open process");
-		//need to quit in a better way.
-		exit(0);//just give up.  Best error handler.
+		elm_exit();//just give up.  Best error handler.
 	}
 	
 	/*Capture each character of the command output and print it 
@@ -138,8 +142,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	//printf("%s\n", output);
 	pclose(ptr); //Let Peter rest.  He worked hard today.
 	
-	//stop progress bar...  none of this works.
-	elm_progressbar_pulse(pb, EINA_FALSE);
+
 	
 	
 		
@@ -155,7 +158,10 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	}
 	result[j] = '\0';  //safety pad
 	*/
-	elm_object_text_set(entry3, output);//change to 'result' if needed
+	elm_object_text_set(entry2, output);//change to 'result' if needed
+
+	//stop progress bar...  none of this works.
+	//elm_progressbar_pulse(pb, EINA_FALSE);
 }
 
 
@@ -194,9 +200,11 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 }
 
 
+
+/* remove grid and replace with table and frames */
 EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
-	Evas_Object *win, *grid, *hbox, *ic1, *ic2, *entry1, *entry2;
+	Evas_Object *win, *table, *grid, *hbox, *ic1, *ic2, *entry1, *entry3;
 	Evas_Object *iso_bt, *md5_bt, *md5_check_bt, *iso_check_bt, *dd_bt;
 	Evas_Object *help_bt, *sep;
 	//still need a few labels or icons later.
@@ -214,19 +222,25 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	*/
 	evas_object_size_hint_min_set(win,420,300); //min window size
 
-	//make grid
+
+	//replacement table
+	table = elm_table_add(win);
+	elm_table_padding_set(table, 10, 10);
+//	elm_win_resize_object_add(win,table);
+//	evas_object_show(table);
+
+/*
+	//phase this out.
 	grid = elm_grid_add(win);
 	evas_object_size_hint_weight_set(grid,EVAS_HINT_EXPAND,EVAS_HINT_EXPAND);
 	elm_win_resize_object_add(win, grid);
 	evas_object_show(grid);
+*/
 
-	/*need to add filters to the fileselectors so they only show the
-	* relevant file types for each button if possible
-	*/
 		
 	/* MD5 selector button */
 
-	md5_bt = elm_fileselector_button_add(grid);
+	md5_bt = elm_fileselector_button_add(table);
 	elm_fileselector_path_set(md5_bt, "/home/");
 	elm_fileselector_button_inwin_mode_set(md5_bt, EINA_TRUE);
 	elm_fileselector_expandable_set(md5_bt, EINA_FALSE);
@@ -234,45 +248,46 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_fileselector_is_save_set(md5_bt, EINA_TRUE);
 	elm_object_text_set(md5_bt, "Select MD5");
 
-	elm_grid_pack_set(md5_bt,2,2,26,11);//this sets size, not evas resize.
+	elm_table_pack(table,md5_bt,25,23,8,5);
+	//elm_grid_pack_set(md5_bt,2,2,26,11);
 	evas_object_show(md5_bt);
 	
 	/* MD5 text entry */
-	entry1 = elm_entry_add(grid);
+	entry1 = elm_entry_add(table);
 	elm_entry_line_wrap_set(entry1, EINA_FALSE);
 	elm_entry_editable_set(entry1, EINA_FALSE);
-	elm_grid_pack_set(entry1,33,3,60,11);
+	elm_table_pack(table,entry1,35,23,20,5);
+//	elm_grid_pack_set(entry1,33,3,60,11);
 	evas_object_show(entry1);
 	
 		
 	/* Md5 Check Button */
-	md5_check_bt = elm_button_add(grid);
+	md5_check_bt = elm_button_add(table);
 	elm_button_autorepeat_set(md5_check_bt, EINA_FALSE);
 	elm_object_text_set(md5_check_bt, "Check md5sum");
-	elm_grid_pack_set(md5_check_bt,2,14,26,11);
+	elm_table_pack(table,md5_check_bt,25,30,8,5);
+//	elm_grid_pack_set(md5_check_bt,2,14,26,11);
 	evas_object_show(md5_check_bt);
 	
 	/* md5 result entry */
-	entry3 = elm_entry_add(grid);
-	elm_entry_line_wrap_set(entry3, EINA_FALSE);
-	elm_entry_editable_set(entry3, EINA_FALSE);
-	elm_grid_pack_set(entry3,33,15,60,11);
-	evas_object_show(entry3);
+	entry2 = elm_entry_add(table);
+	elm_entry_line_wrap_set(entry2, EINA_FALSE);
+	elm_entry_editable_set(entry2, EINA_FALSE);
+	elm_table_pack(table,entry2,35,30,4,1);
+//	elm_grid_pack_set(entry3,33,15,60,11);
+	evas_object_show(entry2);
 	
-	
+	/* remove for now
 	// separator line
 	sep = elm_separator_add(win);
 	elm_separator_horizontal_set(sep, EINA_TRUE);
 	elm_grid_pack(grid,sep,1,30,100,1);
 	evas_object_show(sep);	
-
-	
-	
-	/* put ISO button into group with final DD button and use only
-	*  md5 button for checking the md5 since that's all we need anyway.
 	*/
+	
+
 	/* ISO selector button */
-	iso_bt = elm_fileselector_button_add(grid);
+	iso_bt = elm_fileselector_button_add(table);
 	elm_fileselector_path_set(iso_bt, "/home/");
 	elm_fileselector_button_inwin_mode_set(iso_bt, EINA_TRUE);
 	elm_fileselector_expandable_set(iso_bt, EINA_FALSE);
@@ -280,21 +295,24 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_fileselector_is_save_set(iso_bt, EINA_TRUE);
 	elm_object_text_set(iso_bt, "Select ISO");
 
-	elm_grid_pack_set(iso_bt,2,35,26,11);
+	elm_table_pack(table,iso_bt,25,40,8,5);
+//	elm_grid_pack_set(iso_bt,2,35,26,11);
 	evas_object_show(iso_bt);
 
 	/* ISO text entry */
-	entry2 = elm_entry_add(grid);
-	elm_entry_line_wrap_set(entry2, EINA_FALSE);
-	elm_entry_editable_set(entry2, EINA_FALSE);
-	elm_grid_pack_set(entry2,33,36,60,11);
-	evas_object_show(entry2);
+	entry3 = elm_entry_add(table);
+	elm_entry_line_wrap_set(entry3, EINA_FALSE);
+	elm_entry_editable_set(entry3, EINA_FALSE);
+	elm_table_pack(table,entry3,6,1,4,1);
+//	elm_grid_pack_set(entry3,33,36,60,11);
+	evas_object_show(entry3);
 
 	/* help button */
-	help_bt = elm_button_add(grid);
+	help_bt = elm_button_add(table);
 	elm_button_autorepeat_set(help_bt, EINA_FALSE);
 	elm_object_text_set(help_bt, "Help");
-	elm_grid_pack_set(help_bt,84,83,15,10);
+	elm_table_pack(table,help_bt,8,6,5,5);
+//	elm_grid_pack_set(help_bt,84,83,15,10);
 	evas_object_show(help_bt);
 	
 	
@@ -302,12 +320,13 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	/* progress bar */
 	
 	//totally broken... Pulsing isn't working at all.
-	pb = elm_progressbar_add(grid);
+	pb = elm_progressbar_add(table);
 	evas_object_size_hint_align_set(pb, EVAS_HINT_FILL, 0.5);
 	evas_object_size_hint_weight_set(pb, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	elm_progressbar_pulse_set(pb, EINA_TRUE);
 	elm_progressbar_unit_format_set(pb, NULL);
 //	elm_progressbar_pulse(pb, EINA_TRUE);
+	elm_table_pack(table,pb,20,50,50,1);
 	elm_grid_pack_set(pb,0,90,100,12);
 	evas_object_show(pb);
 	
@@ -315,14 +334,14 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	
 	//add callbacks for buttons
 	evas_object_smart_callback_add(md5_bt,"file,chosen",md5_chosen, entry1);
-	evas_object_smart_callback_add(iso_bt,"file,chosen",iso_chosen, entry2);
+	evas_object_smart_callback_add(iso_bt,"file,chosen",iso_chosen, entry3);
 	evas_object_smart_callback_add(md5_check_bt,"clicked",md5_check,entry1);
 	evas_object_smart_callback_add(help_bt,"clicked",help_info,NULL);
 	
 	/* set final window size and display it */
 	
-	evas_object_resize(win, 420, 300);//start at min size
-	evas_object_show(grid);  //is this needed?
+	evas_object_resize(win, 420, 320);//start at min size
+	evas_object_show(table);  //is this needed?
 	evas_object_show(win);
 
 	elm_run();
