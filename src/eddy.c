@@ -105,7 +105,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 		printf("No md5 file chosen yet!\n");
 		return;
 	}
-	//set folderPath directory with string wizardry
+	/* set folderPath directory with string wizardry */
 	for (i = strlen(md5Path); i > 0; i--){
 		if (md5Path[i] != '/'){//ignore file name
 			continue;
@@ -161,26 +161,24 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	//printf("%s\n", output);
 	pclose(ptr); //Let Peter rest.  He worked hard today.
 	
-	//stop progress bar
+	//stop progress bar...  none of this works.
 	elm_progressbar_pulse(pbar.pb1, EINA_FALSE);
 	if (pbar.run){
 		ecore_timer_del(pbar.timer);
 		pbar.run = EINA_FALSE;
 	}
 	
-	
-	/*testing*/
-	
-	//get md5sum result
+		
+	/* get md5sum result */
 	while(output[i] != ':')
 		i--;
-	i++;
+	i += 2;
 	while(output[i] != '\0'){
 		result[j] = output[i];
 		i++;
 		j++;
 	}
-	result[j] = '\0';
+	result[j] = '\0';  //safety padding
 	elm_object_text_set(entry3, result);
 		
 	
