@@ -13,33 +13,7 @@
 #include <time.h>
 #include <string.h>
 
-Evas_Object *entry3;
-
-//progressbar struct
-typedef struct Progbar
-{
-	Evas_Object *pb1;
-	Eina_Bool    run;
-	Ecore_Timer *timer;
-} Progbar;
-
-static Progbar pbar;
-
-/* more progressbar setup */
-/*
-static Eina_Bool progressbar_go(void *data EINA_UNUSED)
-{
-   double progress;
-   progress = elm_progressbar_value_get(pbar.pb1);
-   if (progress < 1.0) progress += 0.0123;
-   else progress = 0.0;
-   elm_progressbar_value_set(pbar.pb1, progress);
-   if (progress < 1.0) return ECORE_CALLBACK_RENEW;
-   pbar.run = 0;
-   return ECORE_CALLBACK_CANCEL;
-}
-*/
-
+Evas_Object *entry3, *pb;
 
 
 /* get the ISO selected and set it to a visible entry*/
@@ -87,10 +61,6 @@ md5_chosen(void *data EINA_UNUSED,Evas_Object *obj EINA_UNUSED,void *event_info)
 
 /* Check selected md5 file against ISO.  ISO must be in same folder. */
 
-/* Check selected md5 file against ISO.  ISO must be in same folder. */
-
-//make progress bar to work with popen command.
-
 static void 
 md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 {	
@@ -102,7 +72,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	char fileName[PATH_MAX];
 	char output[PATH_MAX];
 	char command[PATH_MAX];
-	char result[PATH_MAX];
+	//char result[PATH_MAX];
 	const char *md5Path = elm_object_text_get(data);	
 	
 	if(!*md5Path) {
@@ -112,14 +82,9 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	
 	
 	/* how do I start the progress bar?? */
-	elm_progressbar_pulse_set(pbar.pb1, EINA_TRUE);
-	elm_progressbar_pulse(pbar.pb1,EINA_TRUE);
-	/*
-	if (!pbar.run){
-		pbar.timer = ecore_timer_add(0.1, progressbar_go, NULL);
-		pbar.run = EINA_TRUE;
-	}
-	*/
+	elm_progressbar_pulse_set(pb, EINA_TRUE);
+	elm_progressbar_pulse(pb,EINA_TRUE);
+	
 	
 	
 	/* set folderPath directory with string wizardry */
@@ -174,14 +139,8 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	pclose(ptr); //Let Peter rest.  He worked hard today.
 	
 	//stop progress bar...  none of this works.
-	elm_progressbar_pulse(pbar.pb1, EINA_FALSE);
+	elm_progressbar_pulse(pb, EINA_FALSE);
 	
-	/*
-	if (pbar.run){
-		ecore_timer_del(pbar.timer);
-		pbar.run = EINA_FALSE;
-	}
-	*/
 	
 		
 	/* get md5sum result in case output needs to be shortened */
@@ -194,7 +153,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 		i++;
 		j++;
 	}
-	result[j] = '\0';  //safety padding
+	result[j] = '\0';  //safety pad
 	*/
 	elm_object_text_set(entry3, output);//change to 'result' if needed
 }
@@ -239,7 +198,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
 	Evas_Object *win, *grid, *hbox, *ic1, *ic2, *entry1, *entry2;
 	Evas_Object *iso_bt, *md5_bt, *md5_check_bt, *iso_check_bt, *dd_bt;
-	Evas_Object *help_bt, *sep, *pb;
+	Evas_Object *help_bt, *sep;
 	//still need a few labels or icons later.
 
 	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
@@ -348,9 +307,9 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_size_hint_weight_set(pb, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	elm_progressbar_pulse_set(pb, EINA_TRUE);
 	elm_progressbar_unit_format_set(pb, NULL);
+//	elm_progressbar_pulse(pb, EINA_TRUE);
 	elm_grid_pack_set(pb,0,90,100,12);
 	evas_object_show(pb);
-	pbar.pb1 = pb;
 	
 
 	
