@@ -206,7 +206,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
 	Evas_Object *win, *table, *grid, *hbox, *ic1, *ic2, *entry1, *entry3;
 	Evas_Object *iso_bt, *md5_bt, *md5_check_bt, *iso_check_bt, *dd_bt;
-	Evas_Object *help_bt, *sep;
+	Evas_Object *help_bt, *sep, *combo;
 	//still need a few labels or icons later.
 
 	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
@@ -226,16 +226,13 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	//replacement table
 	table = elm_table_add(win);
 	elm_table_padding_set(table, 10, 10);
-//	elm_win_resize_object_add(win,table);
-//	evas_object_show(table);
+	evas_object_size_hint_weight_set(table,EVAS_HINT_EXPAND,EVAS_HINT_EXPAND);
+	elm_win_resize_object_add(win,table);
+	evas_object_show(table);
+	
+	//elm_table_homogeneous_set(table, EINA_TRUE);
 
-/*
-	//phase this out.
-	grid = elm_grid_add(win);
-	evas_object_size_hint_weight_set(grid,EVAS_HINT_EXPAND,EVAS_HINT_EXPAND);
-	elm_win_resize_object_add(win, grid);
-	evas_object_show(grid);
-*/
+
 
 		
 	/* MD5 selector button */
@@ -248,16 +245,14 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_fileselector_is_save_set(md5_bt, EINA_TRUE);
 	elm_object_text_set(md5_bt, "Select MD5");
 
-	elm_table_pack(table,md5_bt,25,23,8,5);
-	//elm_grid_pack_set(md5_bt,2,2,26,11);
+	elm_table_pack(table,md5_bt,0,0,1,1);
 	evas_object_show(md5_bt);
 	
 	/* MD5 text entry */
 	entry1 = elm_entry_add(table);
 	elm_entry_line_wrap_set(entry1, EINA_FALSE);
 	elm_entry_editable_set(entry1, EINA_FALSE);
-	elm_table_pack(table,entry1,35,23,20,5);
-//	elm_grid_pack_set(entry1,33,3,60,11);
+	elm_table_pack(table,entry1,1,0,10,1);
 	evas_object_show(entry1);
 	
 		
@@ -265,16 +260,14 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	md5_check_bt = elm_button_add(table);
 	elm_button_autorepeat_set(md5_check_bt, EINA_FALSE);
 	elm_object_text_set(md5_check_bt, "Check md5sum");
-	elm_table_pack(table,md5_check_bt,25,30,8,5);
-//	elm_grid_pack_set(md5_check_bt,2,14,26,11);
+	elm_table_pack(table,md5_check_bt,0,2,1,1);
 	evas_object_show(md5_check_bt);
 	
 	/* md5 result entry */
 	entry2 = elm_entry_add(table);
 	elm_entry_line_wrap_set(entry2, EINA_FALSE);
 	elm_entry_editable_set(entry2, EINA_FALSE);
-	elm_table_pack(table,entry2,35,30,4,1);
-//	elm_grid_pack_set(entry3,33,15,60,11);
+	elm_table_pack(table,entry2,1,2,10,1);
 	evas_object_show(entry2);
 	
 	/* remove for now
@@ -295,24 +288,27 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_fileselector_is_save_set(iso_bt, EINA_TRUE);
 	elm_object_text_set(iso_bt, "Select ISO");
 
-	elm_table_pack(table,iso_bt,25,40,8,5);
-//	elm_grid_pack_set(iso_bt,2,35,26,11);
+	elm_table_pack(table,iso_bt,0,5,1,1);
 	evas_object_show(iso_bt);
 
 	/* ISO text entry */
 	entry3 = elm_entry_add(table);
 	elm_entry_line_wrap_set(entry3, EINA_FALSE);
 	elm_entry_editable_set(entry3, EINA_FALSE);
-	elm_table_pack(table,entry3,6,1,4,1);
-//	elm_grid_pack_set(entry3,33,36,60,11);
+	elm_table_pack(table,entry3,1,5,10,1);
 	evas_object_show(entry3);
+	
+	/* USB chooser box */
+	combo = elm_combobox_add(table);
+	elm_object_part_text_set(combo, "Chooser", "Chose USB Drive");
+	elm_table_pack(table, combo,0,6,4,1);
+	evas_object_show(combo);
 
 	/* help button */
 	help_bt = elm_button_add(table);
 	elm_button_autorepeat_set(help_bt, EINA_FALSE);
 	elm_object_text_set(help_bt, "Help");
-	elm_table_pack(table,help_bt,8,6,5,5);
-//	elm_grid_pack_set(help_bt,84,83,15,10);
+	elm_table_pack(table,help_bt,14,13,1,1);
 	evas_object_show(help_bt);
 	
 	
@@ -326,8 +322,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_progressbar_pulse_set(pb, EINA_TRUE);
 	elm_progressbar_unit_format_set(pb, NULL);
 //	elm_progressbar_pulse(pb, EINA_TRUE);
-	elm_table_pack(table,pb,20,50,50,1);
-	elm_grid_pack_set(pb,0,90,100,12);
+	elm_table_pack(table,pb,0,14,15,1);
 	evas_object_show(pb);
 	
 
