@@ -274,24 +274,31 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	/* ISO selector button */
 
 	iso_bt = elm_fileselector_button_add(table);
-	elm_fileselector_path_set(iso_bt, "/home/");
+//	elm_fileselector_path_set(iso_bt, "/home/");
 	elm_fileselector_button_inwin_mode_set(iso_bt, EINA_TRUE);
 	elm_fileselector_expandable_set(iso_bt, EINA_FALSE);
 	elm_fileselector_folder_only_set(iso_bt, EINA_FALSE);
 	elm_fileselector_is_save_set(iso_bt, EINA_TRUE);
 	elm_object_text_set(iso_bt, "Select ISO");
-	efl_gfx_hint_align_set(iso_bt, 0.0, 0.5);
+//	efl_gfx_hint_align_set(iso_bt, -1, 0.5);
+	evas_object_size_hint_align_set(iso_bt, EVAS_HINT_FILL, 0.5);
 
 	elm_table_pack(table,iso_bt,0,0,1,1);
 	evas_object_show(iso_bt);
 
 	/* ISO text entry */
 	entry1 = elm_entry_add(table);
-	elm_entry_line_wrap_set(entry1, EINA_FALSE);
+//	elm_entry_line_wrap_set(entry1, EINA_FALSE);
 	elm_entry_editable_set(entry1, EINA_FALSE);
-	efl_gfx_hint_align_set(entry1, 0.0, 0.5);
+//	efl_gfx_hint_align_set(entry1, -1, 0.5);
 
-	elm_table_pack(table,entry1,1,0,13,1);
+	elm_entry_scrollable_set(entry1,EINA_TRUE);
+	elm_scroller_policy_set(entry2,ELM_SCROLLER_POLICY_OFF,ELM_SCROLLER_POLICY_OFF);
+	elm_entry_single_line_set(entry1, EINA_TRUE);
+	evas_object_size_hint_weight_set(entry1, EVAS_HINT_EXPAND, 0.0);
+	evas_object_size_hint_align_set(entry1, EVAS_HINT_FILL, 0.5);
+
+	elm_table_pack(table,entry1,1,0,2,1);
 	evas_object_show(entry1);
 
 	
@@ -299,36 +306,36 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	md5_check_bt = elm_button_add(table);
 	elm_button_autorepeat_set(md5_check_bt, EINA_FALSE);
 	elm_object_text_set(md5_check_bt, "Check md5");
-	efl_gfx_hint_align_set(md5_check_bt, 0.0, 0.5);
+//	efl_gfx_hint_align_set(md5_check_bt, -1, 0.5);
+	evas_object_size_hint_align_set(md5_check_bt, EVAS_HINT_FILL, 0.5);
 
-	elm_table_pack(table,md5_check_bt,0,2,1,1);
+	elm_table_pack(table,md5_check_bt,0,1,1,1);
 	evas_object_show(md5_check_bt);
 
 	/* md5 result entry */
 	entry2 = elm_entry_add(table);
-	elm_entry_line_wrap_set(entry2, EINA_FALSE);
+//	elm_entry_line_wrap_set(entry2, EINA_FALSE);
 	elm_entry_editable_set(entry2, EINA_FALSE);
-	efl_gfx_hint_align_set(entry2, 0.0, 0.5);
+//	efl_gfx_hint_align_set(entry2, -2, 0.5);
 
-	elm_table_pack(table,entry2,1,2,13,1);
+	elm_entry_scrollable_set(entry2, EINA_TRUE);
+	elm_scroller_policy_set(entry2,ELM_SCROLLER_POLICY_OFF,ELM_SCROLLER_POLICY_OFF);
+	elm_entry_single_line_set(entry2, EINA_TRUE);
+	evas_object_size_hint_weight_set(entry2, EVAS_HINT_EXPAND, 0.0);
+	evas_object_size_hint_align_set(entry2, EVAS_HINT_FILL, 0.5);
+
+	elm_table_pack(table,entry2,1,1,2,1);
 	evas_object_show(entry2);
 
-	/* remove for now
-	// separator line
-	sep = elm_separator_add(win);
-	elm_separator_horizontal_set(sep, EINA_TRUE);
-	elm_grid_pack(grid,sep,1,30,100,1);
-	evas_object_show(sep);	
-	*/
-
-
-
+	
 	/* USB chooser box */
 	combo = elm_combobox_add(table);
 	elm_object_part_text_set(combo, "Chooser", "Chose USB Drive");
-	efl_gfx_hint_align_set(combo, 0.9, 0.5);
+//	efl_gfx_hint_align_set(combo, 0.9, 0.5);
+	evas_object_size_hint_weight_set(combo, EVAS_HINT_EXPAND, 0.0);
+	evas_object_size_hint_align_set(combo, EVAS_HINT_FILL, 0.5);
 
-	elm_table_pack(table, combo,0,5,6,1);
+	elm_table_pack(table, combo, 0,2,1,1);
 	evas_object_show(combo);
 
 
@@ -352,26 +359,33 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	usb_check_bt = elm_button_add(table);
 	elm_button_autorepeat_set(usb_check_bt, EINA_FALSE);
 	elm_object_text_set(usb_check_bt, "Check USB");
-	efl_gfx_hint_align_set(usb_check_bt, 0.0, 0.5);
+//	efl_gfx_hint_align_set(usb_check_bt, -1, 0.5);
+	evas_object_size_hint_align_set(usb_check_bt, EVAS_HINT_FILL, 0.5);
 
-	elm_table_pack(table,usb_check_bt,0,6,1,1);
+	elm_table_pack(table,usb_check_bt,0,3,1,1);
 	evas_object_show(usb_check_bt);
 	
 	//add label3 here for usb check results
 	/* usb check result entry */
 	entry3 = elm_entry_add(table);
-	elm_entry_line_wrap_set(entry3, EINA_FALSE);
+//	elm_entry_line_wrap_set(entry3, EINA_FALSE);
 	elm_entry_editable_set(entry3, EINA_FALSE);
-	efl_gfx_hint_align_set(entry3, 0.0, 0.5);
+	elm_entry_scrollable_set(entry3, EINA_TRUE);
+	elm_scroller_policy_set(entry3, ELM_SCROLLER_POLICY_OFF, ELM_SCROLLER_POLICY_OFF);
+	elm_entry_single_line_set(entry3, EINA_TRUE);
+	evas_object_size_hint_weight_set(entry3, EVAS_HINT_EXPAND, 0.0);
+	evas_object_size_hint_align_set(entry3, EVAS_HINT_FILL, 0.5);
+//	efl_gfx_hint_align_set(entry3, -1, 0.5);
 
-	elm_table_pack(table,entry3,1,6,13,1);
-	evas_object_show(entry2);
+	elm_table_pack(table,entry3,1,3,2,1);
+	evas_object_show(entry3);
 	
 	/* DD buttom */
 	dd_bt = elm_button_add(table);
 	elm_button_autorepeat_set(dd_bt, EINA_FALSE);
 	elm_object_text_set(dd_bt, "Make Live USB");
-	efl_gfx_hint_align_set(dd_bt, 0.0, 0.5);
+//	efl_gfx_hint_align_set(dd_bt, -1, 0.5);
+	evas_object_size_hint_align_set(dd_bt, EVAS_HINT_FILL, 0.5);
 
 	elm_table_pack(table,dd_bt,0,10,1,1);
 	evas_object_show(dd_bt);
@@ -380,7 +394,8 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	help_bt = elm_button_add(table);
 	elm_button_autorepeat_set(help_bt, EINA_FALSE);
 	elm_object_text_set(help_bt, "Help");
-	efl_gfx_hint_align_set(help_bt, 0.0, 0.5);
+//	efl_gfx_hint_align_set(help_bt, -1, 0.5);
+	evas_object_size_hint_align_set(help_bt, EVAS_HINT_FILL, 0.5);
 	
 	elm_table_pack(table,help_bt,34,13,1,1);
 	evas_object_show(help_bt);
@@ -410,7 +425,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	
 	/* set final window size and display it */
 	
-	evas_object_resize(win, 400, 240);//start at min size
+	evas_object_resize(win, ELM_SCALE_SIZE(400), ELM_SCALE_SIZE(240));
 	evas_object_show(table);  //is this needed?
 	evas_object_show(win);
 
