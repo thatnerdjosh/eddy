@@ -116,6 +116,9 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	strcat(command, ".md5");
 	
 	
+// need to verify md5 file exists
+	
+	
 
 	/*execute md5 check.  
 	* md5sum requires .ISO and .md5 files to be in the same folder!
@@ -260,7 +263,8 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	/* table, replacing grid */
 	table = elm_table_add(win);
-	elm_table_padding_set(table, 10, 10);
+	elm_table_padding_set(table, 1, 1);
+	elm_table_align_set(table,0.0,0.5);
 	evas_object_size_hint_weight_set(table,EVAS_HINT_EXPAND,EVAS_HINT_EXPAND);
 	elm_win_resize_object_add(win,table);
 	evas_object_show(table);
@@ -369,7 +373,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_object_text_set(dd_bt, "Make Live USB");
 	efl_gfx_hint_align_set(dd_bt, 0.0, 0.5);
 
-	elm_table_pack(table,dd_bt,0,8,1,1);
+	elm_table_pack(table,dd_bt,0,10,1,1);
 	evas_object_show(dd_bt);
 
 	/* help button */
@@ -378,7 +382,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_object_text_set(help_bt, "Help");
 	efl_gfx_hint_align_set(help_bt, 0.0, 0.5);
 	
-	elm_table_pack(table,help_bt,14,13,1,1);
+	elm_table_pack(table,help_bt,34,13,1,1);
 	evas_object_show(help_bt);
 	
 	/* progress bar */
@@ -392,7 +396,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 //	efl_gfx_hint_align_set(pb, 0.0, 0.5);
 	
 //	elm_progressbar_pulse(pb, EINA_TRUE);
-	elm_table_pack(table,pb,0,14,15,1);
+	elm_table_pack(table,pb,0,14,35,1);
 	evas_object_show(pb);
 	
 
@@ -406,7 +410,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	
 	/* set final window size and display it */
 	
-	evas_object_resize(win, 305, 335);//start at min size
+	evas_object_resize(win, 400, 240);//start at min size
 	evas_object_show(table);  //is this needed?
 	evas_object_show(win);
 
