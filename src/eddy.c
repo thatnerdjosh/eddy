@@ -1,10 +1,23 @@
+	/*************************************************************
+	* Eddy is a simple live USB creation utility.                *
+	*                                                            *
+	* Authors:                                                   *
+	*                                                            *
+	* Doug Yanez        <Deepspeed@bodhilinux.com>               *
+	*                                                            *
+	* Your Name <your email>                                     *
+	*                                                            *
+	*                                                            *
+	**************************************************************
+//compile with
 //  gcc -o eddy eddy.c `pkg-config --cflags --libs eina efl elementary`
+
 
 /* TODO:
  *
  * Get Genlist working
  *
- *Change popen() to ecore_exe
+ * Change popen() to ecore_exe
  *
  * Get progress bar working
  *
@@ -48,30 +61,7 @@ iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 }
 
 
-/*Get md5 file selected and set it to another visible entry*/
 
-static void 
-md5_chosen(void *data EINA_UNUSED,Evas_Object *obj EINA_UNUSED,void *event_info)
-{
-
-	const char *file = event_info;
-	Evas_Object *entry = data;
-	
-	if(!file)
-		return;
-
-	int i = strlen(file);
-	
-	//filetype filter
-	if(file[i-4]!='.'&&file[i-3]!='m'&&file[i-2]!='d'&&file[i-1]!='5'){
-		printf("Wrong file type!  Try again.\n");
-		return;
-	}
-	
-	elm_object_text_set(entry, file);
-	
-	//printf("File Chosen: %s\n", file ? file : "*none Chosen!*");
-}
 
 
 /* Check selected md5 file against ISO.  ISO must be in same folder. */
@@ -96,7 +86,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 
 	
 	if(!*isoPath) {
-		printf("No md5 file chosen yet!\n");
+		printf("No .iso file chosen yet!\n");
 		return;
 	}
 	
@@ -152,18 +142,6 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	//printf("%s\n", output);
 	pclose(ptr); //Let Peter rest.  He worked hard today.
 		
-	/* get md5sum result in case output needs to be shortened */
-	/*
-	while(output[i] != ':')
-		i--;
-	i += 2;
-	while(output[i] != '\0'){
-		result[j] = output[i];
-		i++;
-		j++;
-	}
-	result[j] = '\0';  //safety pad
-	*/
 	elm_object_text_set(entry2, output);//change to 'result' if needed
 
 	//stop progress bar...  none of this works.
@@ -286,9 +264,9 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_size_hint_weight_set(table,EVAS_HINT_EXPAND,EVAS_HINT_EXPAND);
 	elm_win_resize_object_add(win,table);
 	evas_object_show(table);
-	
 
-		
+
+	
 	/* ISO selector button */
 
 	iso_bt = elm_fileselector_button_add(table);
@@ -302,26 +280,26 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	elm_table_pack(table,iso_bt,0,0,1,1);
 	evas_object_show(iso_bt);
-	
+
 	/* ISO text entry */
 	entry1 = elm_entry_add(table);
 	elm_entry_line_wrap_set(entry1, EINA_FALSE);
 	elm_entry_editable_set(entry1, EINA_FALSE);
 	efl_gfx_hint_align_set(entry1, 0.0, 0.5);
-	
+
 	elm_table_pack(table,entry1,1,0,13,1);
 	evas_object_show(entry1);
+
 	
-		
 	/* Md5 Check Button */
 	md5_check_bt = elm_button_add(table);
 	elm_button_autorepeat_set(md5_check_bt, EINA_FALSE);
-	elm_object_text_set(md5_check_bt, "Check md5sum");
+	elm_object_text_set(md5_check_bt, "Check md5");
 	efl_gfx_hint_align_set(md5_check_bt, 0.0, 0.5);
 
 	elm_table_pack(table,md5_check_bt,0,2,1,1);
 	evas_object_show(md5_check_bt);
-	
+
 	/* md5 result entry */
 	entry2 = elm_entry_add(table);
 	elm_entry_line_wrap_set(entry2, EINA_FALSE);
@@ -330,7 +308,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	elm_table_pack(table,entry2,1,2,13,1);
 	evas_object_show(entry2);
-	
+
 	/* remove for now
 	// separator line
 	sep = elm_separator_add(win);
@@ -338,18 +316,18 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_grid_pack(grid,sep,1,30,100,1);
 	evas_object_show(sep);	
 	*/
-	
 
-	
+
+
 	/* USB chooser box */
 	combo = elm_combobox_add(table);
 	elm_object_part_text_set(combo, "Chooser", "Chose USB Drive");
-	efl_gfx_hint_align_set(combo, 0.6, 0.5);
-	
-	elm_table_pack(table, combo,0,5,4,1);
+	efl_gfx_hint_align_set(combo, 0.9, 0.5);
+
+	elm_table_pack(table, combo,0,5,6,1);
 	evas_object_show(combo);
-	
-	
+
+
 	//example code   
 	glist = elm_genlist_item_class_new();
 	glist->item_style = "default";
@@ -358,8 +336,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	glist->func.state_get = gl_state_get;
 	glist->func.filter_get = gl_filter_get;
 	glist->func.del = NULL;
-	
-	
+
 	//more examples
 	for (int i = 0; i < 10; i++)
 		elm_genlist_item_append(combo, glist, (void *)(uintptr_t)i,
@@ -377,6 +354,14 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_show(usb_check_bt);
 	
 	//add label3 here for usb check results
+	/* usb check result entry */
+	entry3 = elm_entry_add(table);
+	elm_entry_line_wrap_set(entry3, EINA_FALSE);
+	elm_entry_editable_set(entry3, EINA_FALSE);
+	efl_gfx_hint_align_set(entry3, 0.0, 0.5);
+
+	elm_table_pack(table,entry3,1,6,13,1);
+	evas_object_show(entry2);
 	
 	/* DD buttom */
 	dd_bt = elm_button_add(table);
@@ -386,9 +371,6 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	elm_table_pack(table,dd_bt,0,8,1,1);
 	evas_object_show(dd_bt);
-	
-	
-	
 
 	/* help button */
 	help_bt = elm_button_add(table);
@@ -398,8 +380,6 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	
 	elm_table_pack(table,help_bt,14,13,1,1);
 	evas_object_show(help_bt);
-	
-	
 	
 	/* progress bar */
 	
