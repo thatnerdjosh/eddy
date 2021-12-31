@@ -298,8 +298,19 @@ gl_filter_get(void *data, Evas_Object *obj EINA_UNUSED, void *key)
 EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
 	/* look for and perform any cli args */
-	if(argc==2) printf("performing arg actions!\n");
-	else printf("No args\n");
+    if (argc==2)
+    {
+        if(strcmp(argv[1],"md5")==0)
+        {
+            printf("perform md5 check\n");
+        }
+        if(strcmp(argv[1],"usb")==0)
+        {
+            printf("perform usb check\n");
+        }
+        if(strcmp(argv[1],"live")==0)
+			printf("Create live usb\n");
+	}
 
 	Evas_Object *win, *table, *hbox, *ic1, *ic2, *entry1, *entry3, *lb1, *lb3;
 	Evas_Object *iso_bt, *md5_check_bt, *usb_check_bt, *dd_bt;
