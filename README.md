@@ -1,5 +1,5 @@
 # eddy
-an EFL-based live USB creation utility.  Very early in development and non-functional as of yet.
+an EFL-based live USB creation utility.  Sill early in development and only partly functional as of yet.
 
 Future features:
 
