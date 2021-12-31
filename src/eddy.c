@@ -298,11 +298,13 @@ gl_filter_get(void *data, Evas_Object *obj EINA_UNUSED, void *key)
 EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
 	/* look for and perform any cli args */
-    if (argc==2)
+    if (argc>=2)
     {
+		char *path = argv[2]; 
         if(strcmp(argv[1],"md5")==0)
         {
             printf("perform md5 check\n");
+            printf("Path:%s\n",path);
         }
         if(strcmp(argv[1],"usb")==0)
         {
@@ -310,6 +312,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
         }
         if(strcmp(argv[1],"live")==0)
 			printf("Create live usb\n");
+			printf("Path:%s\n",path);
 	}
 
 	Evas_Object *win, *table, *hbox, *ic1, *ic2, *entry1, *entry3, *lb1, *lb3;
