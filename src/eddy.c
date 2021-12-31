@@ -3,11 +3,13 @@
 	*                                                            *
 	* Authors:                                                   *
 	*                                                            *
-	* Doug Yanez        <Deepspeed@bodhilinux.com>               *
+	* Doug Yanez            <Deepspeed@bodhilinux.com>           *
 	*                                                            *
 	* Your Name <your email>                                     *
 	*                                                            *
+	* Official upstream:  https://github.com/Deepspeed/eddy      *
 	*                                                            *
+	* License:  GPL v2                                           *
 	**************************************************************
 //compile with
 //  gcc -o eddy eddy.c `pkg-config --cflags --libs eina efl elementary`
@@ -15,15 +17,13 @@
 
 /* TODO:
  *
- * Get Genlist working
+ * Get drive selector working
  *
- * Change popen() to ecore_exe
+ * Get drive checker working
  *
- * Get progress bar workinghttps://github.com/Deepspeed/eddy
+ * Change popen() to EFL an threading method
  *
- * add USB drive selector and checker
- *
- * add ISO installer button using dd command
+ * Get progress bar working
  */
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
@@ -54,6 +54,7 @@ iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 	//filetype filter
 	if(file[i-4]!='.'&&file[i-3]!='i'&&file[i-2]!='s'&&file[i-1]!='o'){
 		printf("Wrong file type!  Try again.\n");
+		elm_object_text_set(lb1,"<align=left>Please choose an iso file");
 		return;
 	}
 	snprintf(buf, sizeof(buf), "<align=left>%s", file);
@@ -72,13 +73,12 @@ static void
 md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 {	
 
-//overhaul with new logic
 	int i;
 	int j=0;
-	
+
 	FILE *ptr; //Our favorite pointer.  His name is Peter.
-	
 	char ch;
+	
 	//filepaths
 	char isoPath[PATH_MAX];
 	char md5Path[PATH_MAX];
@@ -86,46 +86,48 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	char command[PATH_MAX];//terminal command
 	char output[PATH_MAX];//command output
 	char result[PATH_MAX];//final parsed result
-	
-	char tmp[PATH_MAX];
+	//hacky stuff
+	char tmp[PATH_MAX];//temp holder for data from tmpPath
 	char str[] = "<align=left>Md5sum checked: ";
 
+
 	const char *tmpPath = elm_object_text_get(data);
-	
-	
-	/* remove extra <align=left> bit */
-	tmp[0] = '\0';
-	strcat(tmp,tmpPath);
-	for (i=0; tmp[i+12] != '\0'; i++)
-		isoPath[i] = tmp[i+12];
-	
-	isoPath[i+1] = '\0';
-	
-	//error handling
-	if(!*isoPath) {
+
+
+	/* remove extra <align=left> bit */	
+
+	if(tmpPath[12] == '/'){//if file was chosen
+		tmp[0] = '\0';
+		strcat(tmp,tmpPath);
+		for (i=0; tmp[i+12] != '\0'; i++)
+			isoPath[i] = tmp[i+12];
+
+		isoPath[i+1] = '\0';
+	}
+	else {
 		printf("No .iso file chosen yet!\n");
+		elm_object_text_set(lb2,"<align=left>No .iso file chosen yet!");
 		return;
 	}
 	
+
+
 	//activate progress bar (it will work one day)
-	elm_progressbar_pulse(pb,EINA_TRUE);
+//	elm_progressbar_pulse(pb,EINA_TRUE);
+	
 	elm_object_text_set(entry2, "Checking ISO md5sum");
 	
 	/* set folderPath directory with string wizardry */
 	for (i = strlen(isoPath); i > 0; i--){
-		if (isoPath[i] != '/'){//ignore file name
+		if (isoPath[i] != '/')//ignore file name
 			continue;
-		}
-		folderPath[i+1] = '\0';//pad string with null zero
-		for (; i >= 0; i--){
-			folderPath[i] = isoPath[i];//set folderPath
-		}
+
+		folderPath[i+1] = '\0';
+		for (; i >= 0; i--)
+			folderPath[i] = isoPath[i];
 		break;
 	}
-	
-	//this creates overflow warnings
-//	snprintf(command, sizeof(command),"%s%s%s%s%s","cd ", folderPath, " && md5sum -c ", isoPath, ".md5");
-	
+
 	//build terminal command
 	command[0] == '\0';
 	strcpy(command, "cd ");
@@ -142,12 +144,14 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	//check for md5 file existence
 	if(!ecore_file_exists(md5Path)){
 		printf("md5 file does not exist in this folder!\n");
+		elm_object_text_set(lb2, "<align=left>.md5 file not found!");
 		return;
 	}
 	
 	//readability check
 	if(!ecore_file_can_read(md5Path)){
 		printf("md5 file cannot be read!\n");
+		elm_object_text_set(lb2,"<align=left>.md5 file unreadable!");
 		return;
 	}
 	
@@ -189,7 +193,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	
 	strcat(str, result);
 		
-	elm_object_text_set(lb2, str);//change to 'result' if needed
+	elm_object_text_set(lb2, str);//show test results
 
 	//stop progress bar...  none of this works.
 	elm_progressbar_pulse(pb, EINA_FALSE);
@@ -217,7 +221,7 @@ make_usb(void *data EINA_UNUSED,Evas_Object *o EINA_UNUSED, void *e)
 
 
 
-/* Get help window */
+/* help window */
 static void 
 help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_info)
 {
@@ -252,6 +256,8 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 }
 
 
+
+/* example functions for combobox and genlist */
 
 static char *
 gl_text_get(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA_UNUSED)
@@ -288,14 +294,14 @@ gl_filter_get(void *data, Evas_Object *obj EINA_UNUSED, void *key)
 
 
 
-/* remove entries and replace with labels */
+/* get drive selector working */
 EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
 	Evas_Object *win, *table, *hbox, *ic1, *ic2, *entry1, *entry3, *lb1, *lb3;
 	Evas_Object *iso_bt, *md5_check_bt, *usb_check_bt, *dd_bt;
 	Evas_Object *help_bt, *sep, *sep2, *combo;
 	Elm_Genlist_Item_Class *glist;
-	//still need a few labels or icons later.
+
 
 	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
@@ -314,7 +320,6 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_show(table);
 
 
-	
 	/* ISO selector button */
 
 	iso_bt = elm_fileselector_button_add(table);
@@ -327,17 +332,18 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	elm_table_pack(table,iso_bt,0,0,1,1);
 	evas_object_show(iso_bt);
-	
-	
+
+
 	/* ISO text label */
 	lb1 = elm_label_add(table);
 	elm_label_ellipsis_set(lb1, EINA_TRUE);
 	evas_object_size_hint_weight_set(lb1, EVAS_HINT_EXPAND, 0.0);
 	evas_object_size_hint_align_set(lb1, EVAS_HINT_FILL, 0.0);
+	elm_object_text_set(lb1, "\0");
 	
 	elm_table_pack(table, lb1, 1,0,5,1);
 	evas_object_show(lb1);
-	
+
 
 	/* Md5 Check Button */
 	md5_check_bt = elm_button_add(table);
@@ -348,6 +354,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_table_pack(table,md5_check_bt,0,1,1,1);
 	evas_object_show(md5_check_bt);
 
+
 	/* md5 text label */
 	lb2 = elm_label_add(table);
 	elm_label_ellipsis_set(lb2, EINA_TRUE);
@@ -357,12 +364,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_table_pack(table, lb2, 1,1,5,1);
 	evas_object_show(lb2);
 
-	/* First Separator */
-	sep = elm_separator_add(table);
-	elm_separator_horizontal_set(sep, EINA_TRUE);
-	elm_table_pack(table,sep,0,2,2,1);
-	evas_object_show(sep);
-	
+
 	/* USB chooser box */
 	combo = elm_combobox_add(table);
 	elm_object_part_text_set(combo, "Chooser", "Chose USB Drive");
@@ -397,7 +399,8 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	elm_table_pack(table,usb_check_bt,0,4,1,1);
 	evas_object_show(usb_check_bt);
-	
+
+
 	/* USB result label */
 	lb3 = elm_label_add(table);
 	elm_label_ellipsis_set(lb3, EINA_TRUE);
@@ -407,14 +410,16 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_table_pack(table, lb3, 1,4,5,1);
 	evas_object_show(lb3);
 
+
 	/* DD buttom */
 	dd_bt = elm_button_add(table);
 	elm_button_autorepeat_set(dd_bt, EINA_FALSE);
 	elm_object_text_set(dd_bt, "Make Live USB");
 	evas_object_size_hint_align_set(dd_bt, EVAS_HINT_FILL, 0.5);
 
-	elm_table_pack(table,dd_bt,0,6,1,1);
+	elm_table_pack(table,dd_bt,0,12,1,1);
 	evas_object_show(dd_bt);
+
 
 	/* help button */
 	help_bt = elm_button_add(table);
@@ -422,8 +427,9 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_object_text_set(help_bt, "?");
 	evas_object_size_hint_align_set(help_bt, EVAS_HINT_FILL, 0.5);
 	
-	elm_table_pack(table,help_bt,5,7,1,1);
+	elm_table_pack(table,help_bt,5,13,1,1);
 	evas_object_show(help_bt);
+
 	
 	/* progress bar */
 	
@@ -434,7 +440,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_progressbar_pulse_set(pb, EINA_TRUE);
 	elm_progressbar_unit_format_set(pb, NULL);
 
-	elm_table_pack(table,pb,0,10,6,1);
+	elm_table_pack(table,pb,0,14,6,1);
 	evas_object_show(pb);
 	
 	//add callbacks for buttons
