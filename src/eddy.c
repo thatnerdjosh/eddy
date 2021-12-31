@@ -297,6 +297,10 @@ gl_filter_get(void *data, Evas_Object *obj EINA_UNUSED, void *key)
 /* get drive selector working */
 EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
+	/* look for and perform any cli args */
+	if(argc==2) printf("performing arg actions!\n");
+	else printf("No args\n");
+
 	Evas_Object *win, *table, *hbox, *ic1, *ic2, *entry1, *entry3, *lb1, *lb3;
 	Evas_Object *iso_bt, *md5_check_bt, *usb_check_bt, *dd_bt;
 	Evas_Object *help_bt, *sep, *sep2, *combo;
