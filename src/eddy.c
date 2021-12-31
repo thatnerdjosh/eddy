@@ -293,7 +293,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
 	Evas_Object *win, *table, *hbox, *ic1, *ic2, *entry1, *entry3, *lb1, *lb3;
 	Evas_Object *iso_bt, *md5_check_bt, *usb_check_bt, *dd_bt;
-	Evas_Object *help_bt, *sep, *combo;
+	Evas_Object *help_bt, *sep, *sep2, *combo;
 	Elm_Genlist_Item_Class *glist;
 	//still need a few labels or icons later.
 
@@ -307,7 +307,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	/* table, replacing grid */
 	table = elm_table_add(win);
-	elm_table_padding_set(table, 1, 1);
+	elm_table_padding_set(table, 5, 5);
 	elm_table_align_set(table,0.0,0.5);
 	evas_object_size_hint_weight_set(table,EVAS_HINT_EXPAND,EVAS_HINT_EXPAND);
 	elm_win_resize_object_add(win,table);
@@ -357,6 +357,11 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_table_pack(table, lb2, 1,1,5,1);
 	evas_object_show(lb2);
 
+	/* First Separator */
+	sep = elm_separator_add(table);
+	elm_separator_horizontal_set(sep, EINA_TRUE);
+	elm_table_pack(table,sep,0,2,2,1);
+	evas_object_show(sep);
 	
 	/* USB chooser box */
 	combo = elm_combobox_add(table);
@@ -364,7 +369,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_size_hint_weight_set(combo, EVAS_HINT_EXPAND, 0.0);
 	evas_object_size_hint_align_set(combo, EVAS_HINT_FILL, 0.5);
 
-	elm_table_pack(table, combo, 0,2,1,1);
+	elm_table_pack(table, combo, 0,3,1,1);
 	evas_object_show(combo);
 
 
@@ -390,7 +395,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_object_text_set(usb_check_bt, "Check USB");
 	evas_object_size_hint_align_set(usb_check_bt, EVAS_HINT_FILL, 0.5);
 
-	elm_table_pack(table,usb_check_bt,0,3,1,1);
+	elm_table_pack(table,usb_check_bt,0,4,1,1);
 	evas_object_show(usb_check_bt);
 	
 	/* USB result label */
@@ -399,7 +404,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_size_hint_weight_set(lb3, EVAS_HINT_EXPAND, 0.0);
 	evas_object_size_hint_align_set(lb3, EVAS_HINT_FILL, 0.5);
 	
-	elm_table_pack(table, lb3, 1,3,5,1);
+	elm_table_pack(table, lb3, 1,4,5,1);
 	evas_object_show(lb3);
 
 	/* DD buttom */
@@ -408,16 +413,16 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_object_text_set(dd_bt, "Make Live USB");
 	evas_object_size_hint_align_set(dd_bt, EVAS_HINT_FILL, 0.5);
 
-	elm_table_pack(table,dd_bt,0,5,1,1);
+	elm_table_pack(table,dd_bt,0,6,1,1);
 	evas_object_show(dd_bt);
 
 	/* help button */
 	help_bt = elm_button_add(table);
 	elm_button_autorepeat_set(help_bt, EINA_FALSE);
-	elm_object_text_set(help_bt, "Help");
+	elm_object_text_set(help_bt, "?");
 	evas_object_size_hint_align_set(help_bt, EVAS_HINT_FILL, 0.5);
 	
-	elm_table_pack(table,help_bt,5,6,1,1);
+	elm_table_pack(table,help_bt,5,7,1,1);
 	evas_object_show(help_bt);
 	
 	/* progress bar */
@@ -428,12 +433,9 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_size_hint_weight_set(pb, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	elm_progressbar_pulse_set(pb, EINA_TRUE);
 	elm_progressbar_unit_format_set(pb, NULL);
-	
-//	elm_progressbar_pulse(pb, EINA_TRUE);
+
 	elm_table_pack(table,pb,0,10,6,1);
 	evas_object_show(pb);
-	
-
 	
 	//add callbacks for buttons
 	evas_object_smart_callback_add(iso_bt,"file,chosen",iso_chosen, lb1);
@@ -442,8 +444,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_smart_callback_add(dd_bt,"clicked",make_usb,NULL);
 	evas_object_smart_callback_add(help_bt,"clicked",help_info,NULL);
 	
-	/* set final window size and display it */
-	
+	/* set final window size and display it */	
 	evas_object_resize(win, ELM_SCALE_SIZE(420), ELM_SCALE_SIZE(300));
 	evas_object_show(table);  //is this needed?
 	evas_object_show(win);
