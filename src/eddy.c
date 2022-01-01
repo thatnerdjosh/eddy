@@ -31,6 +31,7 @@
 #include <Elementary.h>
 #include <time.h>
 #include <string.h>
+#include <stdio.h>
 
 #define BUFFER_SIZE 1024
 
@@ -337,28 +338,13 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 
 	/* look for and perform any cli args */
-    if (argc<=2) printf("Two args required...must include path!\n");
-    else
-    {
-		char *path = argv[2];
-
-        if(strcmp(argv[1],"md5")==0)
-        {
-			printf("perform md5 check\n");
-            printf("Path:%s\n",path);
-        }
-        if(strcmp(argv[1],"usb")==0)
-        {
-            printf("perform usb check\n");
-            printf("Path:%s\n",path);
-        }
-        if(strcmp(argv[1],"live")==0)
-        {
-			printf("Create live usb\n");
-			printf("Path:%s\n",path);
-		}
-	}
-
+	char *path = NULL;
+	
+	if(strcmp(argv[1],"path")==0) path = argv[2];
+	else
+	path = argv[1];
+	
+	//~ printf("%s ",path);
 
 	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
@@ -396,8 +382,8 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_label_ellipsis_set(lb1, EINA_TRUE);
 	evas_object_size_hint_weight_set(lb1, EVAS_HINT_EXPAND, 0.0);
 	evas_object_size_hint_align_set(lb1, EVAS_HINT_FILL, 0.0);
-	elm_object_text_set(lb1, "\0");
-	
+			if(path!=NULL)elm_object_text_set(lb1, path);
+	//~ else elm_object_text_set(lb1, "/0");}
 	elm_table_pack(table, lb1, 1,0,5,1);
 	evas_object_show(lb1);
 
