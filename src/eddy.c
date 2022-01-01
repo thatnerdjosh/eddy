@@ -343,12 +343,16 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	/* look for and perform any cli args */
 	char *path = NULL;
 	int i;
-	//~ for (; i >= 0; i--)
-	//~ for (i = strlen(isoPath); i > 0; i--){
+
 	for(i=argc; i>=2; i--){
-	(strcmp(argv[1],"path")==0); path = argv[2];
-	--i;
-	path = argv[1];
+		if(strcmp(argv[1],"path")==0)
+		{
+			path = argv[2];
+		}
+		else{
+		 	path = argv[1];
+		}
+		continue;
 	}
 	
 	//~ printf("%s ",path);
