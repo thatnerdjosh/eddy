@@ -341,22 +341,23 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 
 	/* look for and perform any cli args */
+	
 	char *path = NULL;
 	int i;
+	char align[] = "<align=left>";
 
-	for(i=argc; i>=2; i--){
-		if(strcmp(argv[1],"path")==0)
+	for(i=argc; i>=3; i--){
+		if(strcmp(argv[1],"-p")==0)
 		{
 			path = argv[2];
 		}
 		else{
 		 	path = argv[1];
 		}
+		strcat(align,path);
 		continue;
 	}
 	
-	//~ printf("%s ",path);
-
 	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
 	//set up window
@@ -393,7 +394,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_label_ellipsis_set(lb1, EINA_TRUE);
 	evas_object_size_hint_weight_set(lb1, EVAS_HINT_EXPAND, 0.0);
 	evas_object_size_hint_align_set(lb1, EVAS_HINT_FILL, 0.0);
-			if(path!=NULL)elm_object_text_set(lb1, path);
+			if(path!=NULL)elm_object_text_set(lb1, align);
 	//~ else elm_object_text_set(lb1, "/0");}
 	elm_table_pack(table, lb1, 1,0,5,1);
 	evas_object_show(lb1);
