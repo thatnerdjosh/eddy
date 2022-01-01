@@ -1,11 +1,10 @@
 	/*************************************************************
 	* Eddy is a simple live USB creation utility.                *
 	*                                                            *
-	* Authors:                                                   *
+	* Author:                                                   *
 	*                                                            *
 	* Doug Yanez            <Deepspeed@bodhilinux.com>           *
-	*                                                            *
-	* Your Name <your email>                                     *
+	*                                                            *         *
 	*                                                            *
 	* Official upstream:  https://github.com/Deepspeed/eddy      *
 	*                                                            *
@@ -33,9 +32,58 @@
 #include <time.h>
 #include <string.h>
 
+#define BUFFER_SIZE 1024
+
 
 
 Evas_Object *entry2, *lb2, *pb;
+
+
+
+static Eina_Bool 
+msg_handler(void *d EINA_UNUSED, int t EINA_UNUSED, void *event)
+{
+	Ecore_Exe_Event_Data *dataFromProcess = (Ecore_Exe_Event_Data *)event;
+	int i;
+	int j=0;
+	char msg[BUFFER_SIZE];
+	char result[PATH_MAX];//final parsed result
+	char str[] = "<align=left>Md5sum checked: ";
+	
+
+	if (dataFromProcess->size >= (BUFFER_SIZE - 1))
+		{
+		printf("Data too big for bugger. error\n");
+		return ECORE_CALLBACK_DONE;
+	}
+
+	strncpy(msg, dataFromProcess->data, dataFromProcess->size);
+	msg[dataFromProcess->size] = 0;
+
+	if (strcmp(msg, "quit") == 0)
+	{
+		printf("My child said to me, QUIT!\n");
+		ecore_main_loop_quit();
+	}
+	else{  //set results
+		i = strlen(msg);
+		while(msg[i] != ':')
+			i--;
+		i += 2;
+		while(msg[i] != '\0'){
+			result[j] = msg[i];
+			i++;
+			j++;
+		}
+		strcat(str, result);//format text for label
+		
+		elm_object_text_set(lb2, str);//show test results
+		printf("%s\n", msg);
+	}
+	elm_progressbar_pulse(pb, EINA_FALSE);
+	return ECORE_CALLBACK_DONE;
+}
+
 
 
 /* get the ISO selected and set it to a visible entry*/
@@ -74,10 +122,10 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 {	
 
 	int i;
-	int j=0;
 
-	FILE *ptr; //Our favorite pointer.  His name is Peter.
-	char ch;
+	//ecore_exe stuff
+	pid_t childPid;
+	Ecore_Exe *childHandle;
 	
 	//filepaths
 	char isoPath[PATH_MAX];
@@ -88,7 +136,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	char result[PATH_MAX];//final parsed result
 	//hacky stuff
 	char tmp[PATH_MAX];//temp holder for data from tmpPath
-	char str[] = "<align=left>Md5sum checked: ";
+	
 
 
 	const char *tmpPath = elm_object_text_get(data);
@@ -110,12 +158,8 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 		return;
 	}
 	
-
-
-	//activate progress bar (it will work one day)
-//	elm_progressbar_pulse(pb,EINA_TRUE);
-	
-	elm_object_text_set(entry2, "Checking ISO md5sum");
+	elm_progressbar_pulse(pb,EINA_TRUE);
+	elm_object_text_set(lb2, "<align=left>Checking ISO md5sum");
 	
 	/* set folderPath directory with string wizardry */
 	for (i = strlen(isoPath); i > 0; i--){
@@ -145,6 +189,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	if(!ecore_file_exists(md5Path)){
 		printf("md5 file does not exist in this folder!\n");
 		elm_object_text_set(lb2, "<align=left>.md5 file not found!");
+		elm_progressbar_pulse(pb, EINA_FALSE);
 		return;
 	}
 	
@@ -152,51 +197,39 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	if(!ecore_file_can_read(md5Path)){
 		printf("md5 file cannot be read!\n");
 		elm_object_text_set(lb2,"<align=left>.md5 file unreadable!");
+		elm_progressbar_pulse(pb, EINA_FALSE);
 		return;
 	}
 	
 
 	/*execute md5 check.  
 	* md5sum requires .ISO and .md5 files to be in the same folder!
-	*/
-	
-	//swap with ecore_exe.
-	ptr = popen(command, "r");
-	
-	if(!ptr){//error handling
-		puts("Unable to open process");
-		elm_exit();//just give up.  Best error handler.
-	}
-	
-	/*Capture each character of the command output and print it 
-	* to the terminal while also storing it in an array for later.
-	*/
-	i=0;
-	while( (ch=fgetc(ptr)) != EOF)  {
-		putchar(ch);
-		output[i] = ch;
-		i++;
-	}
-	output[i+1] = '\0'; //safety pads
-	//printf("%s\n", output);
-	pclose(ptr); //Let Peter rest.  He worked hard today.
-	
-	while(output[i] != ':')
-		i--;
-	i += 2;
-	while(output[i] != '\0'){
-		result[j] = output[i];
-		i++;
-		j++;
-	}
-	result[j] = '\0';  //safety pad
-	
-	strcat(str, result);
-		
-	elm_object_text_set(lb2, str);//show test results
+	*/	
+	childHandle = ecore_exe_pipe_run(command,
+					ECORE_EXE_PIPE_WRITE |
+					ECORE_EXE_PIPE_READ_LINE_BUFFERED |
+					ECORE_EXE_PIPE_READ, NULL);
 
-	//stop progress bar...  none of this works.
-	elm_progressbar_pulse(pb, EINA_FALSE);
+	if (childHandle == NULL)
+	{
+		fprintf(stderr, "Could not create a child process!\n");
+		elm_progressbar_pulse(pb, EINA_FALSE);
+		goto ecore_shutdown;
+	}
+
+	childPid = ecore_exe_pid_get(childHandle);
+
+	if (childPid == -1)
+		fprintf(stderr, "Could not retrieve the PID!\n");
+	else
+		printf("The child process has PID:%u\n", (unsigned int)childPid);
+
+	ecore_event_handler_add(ECORE_EXE_EVENT_DATA, msg_handler, NULL);
+	ecore_shutdown:
+		ecore_shutdown();
+		
+	//elm_progressbar_pulse(pb, EINA_FALSE);
+	
 }
 
 static void 
@@ -297,6 +330,12 @@ gl_filter_get(void *data, Evas_Object *obj EINA_UNUSED, void *key)
 /* get drive selector working */
 EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
+	Evas_Object *win, *table, *hbox, *ic1, *ic2, *entry1, *entry3, *lb1, *lb3;
+	Evas_Object *iso_bt, *md5_check_bt, *usb_check_bt, *dd_bt;
+	Evas_Object *help_bt, *sep, *sep2, *combo;
+	Elm_Genlist_Item_Class *glist;
+
+
 	/* look for and perform any cli args */
     if (argc<=2) printf("Two args required...must include path!\n");
     else
@@ -319,11 +358,6 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 			printf("Path:%s\n",path);
 		}
 	}
-
-	Evas_Object *win, *table, *hbox, *ic1, *ic2, *entry1, *entry3, *lb1, *lb3;
-	Evas_Object *iso_bt, *md5_check_bt, *usb_check_bt, *dd_bt;
-	Evas_Object *help_bt, *sep, *sep2, *combo;
-	Elm_Genlist_Item_Class *glist;
 
 
 	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
