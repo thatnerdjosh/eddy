@@ -347,16 +347,11 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	char align[] = "<align=left>";
 
 	for(i=argc; i>=3; i--){
-		if(strcmp(argv[1],"-p")==0)
-		{
-			path = argv[2];
-		}
-		else{
-		 	path = argv[1];
-		}
+		if(strcmp(argv[1],"-p")==0)	path = argv[2];
+		if(strcmp(argv[2],"-p")==0) path = argv[1];
 		strcat(align,path);
 		continue;
-	}
+		}
 	
 	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
