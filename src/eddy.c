@@ -1,11 +1,14 @@
 	/*************************************************************
 	* Eddy is a simple live USB creation utility.                *
 	*                                                            *
-	* Author:                                                   *
+	* Author:                                                    *
 	*                                                            *
 	* Doug Yanez            <Deepspeed@bodhilinux.com>           *
-	*                                                            *         *
 	*                                                            *
+	* Contributors:                                              *
+	*                                                            * 
+	* Gareth Williams		<gareth.m.williams@gmail.com         *
+	* 	                                                         *
 	* Official upstream:  https://github.com/Deepspeed/eddy      *
 	*                                                            *
 	* License:  GPL v2                                           *
@@ -339,10 +342,14 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	/* look for and perform any cli args */
 	char *path = NULL;
-	
-	if(strcmp(argv[1],"path")==0) path = argv[2];
-	else
+	int i;
+	//~ for (; i >= 0; i--)
+	//~ for (i = strlen(isoPath); i > 0; i--){
+	for(i=argc; i>=2; i--){
+	(strcmp(argv[1],"path")==0); path = argv[2];
+	--i;
 	path = argv[1];
+	}
 	
 	//~ printf("%s ",path);
 
