@@ -6,7 +6,7 @@
 	* Doug Yanez            <Deepspeed@bodhilinux.com>           *
 	*                                                            *
 	* Contributors:                                              *
-	*                                                            * 
+	*                                                            *
 	* Gareth Williams	<gareth.m.williams@gmail.com>        *
 	* 	                                                     *
 	* Official upstream:  https://github.com/Deepspeed/eddy      *
@@ -41,7 +41,7 @@ Evas_Object *entry2, *lb2, *pb;
 
 /* function for child process to finish md5 check and show results properly */
 
-static Eina_Bool 
+static Eina_Bool
 md5_msg_handler(void *d EINA_UNUSED, int t EINA_UNUSED, void *event)
 {
 	Ecore_Exe_Event_Data *dataFromProcess = (Ecore_Exe_Event_Data *)event;
@@ -50,7 +50,7 @@ md5_msg_handler(void *d EINA_UNUSED, int t EINA_UNUSED, void *event)
 	char msg[BUFFER_SIZE];
 	char result[PATH_MAX];//final parsed result
 	char str[] = "<align=left>Md5sum checked: ";
-	
+
 	if (dataFromProcess->size >= (BUFFER_SIZE - 1)){
 		printf("Data too big for bugger. error\n");
 		return ECORE_CALLBACK_DONE;
@@ -68,12 +68,12 @@ md5_msg_handler(void *d EINA_UNUSED, int t EINA_UNUSED, void *event)
 		i = strlen(msg);
 		while(msg[i] != ':')//iterate backwards to :
 			i--;
-		
+
 		for(i += 2; msg[i] != '\0'; i++, j++)//store result separately
 			result[j] = msg[i];
-		
+
 		strcat(str, result);//format text for label
-		
+
 		elm_object_text_set(lb2, str);//show test results
 	}
 	elm_progressbar_pulse(pb, EINA_FALSE);
@@ -83,14 +83,14 @@ md5_msg_handler(void *d EINA_UNUSED, int t EINA_UNUSED, void *event)
 
 
 /* get the ISO selected and set it to a visible entry*/
-static void 
+static void
 iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
 
 	const char *file = event_info;
 	char buf[PATH_MAX];
 	Evas_Object *lb1 = data;
-	
+
 	if(!file)
 		return;
 
@@ -98,11 +98,11 @@ iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 	//filetype filter
 	if(file[i-4]!='.'&&file[i-3]!='i'&&file[i-2]!='s'&&file[i-1]!='o'){
 		printf("Wrong file type!  Try again.\n");
-		elm_object_text_set(lb1,"<align=left>Please choose an iso file");
+		elm_object_text_set(lb1,"<align=left>Please choose .iso file");
 		return;
 	}
 	snprintf(buf, sizeof(buf), "<align=left>%s", file);
-	elm_object_text_set(lb1, buf);  
+	elm_object_text_set(lb1, buf);
 }
 
 
@@ -111,9 +111,9 @@ iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 
 /* Check selected md5 file against ISO.  ISO must be in same folder. */
 
-static void 
+static void
 md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
-{	
+{
 	EINA_SAFETY_ON_NULL_RETURN(data);
 
 	//ecore_exe stuff
@@ -131,7 +131,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	const char *tmpPath = elm_object_text_get(data);
 
 	/* remove extra <align=left> bit */
-	isoPath = elm_entry_markup_to_utf8(tmpPath);	
+	isoPath = elm_entry_markup_to_utf8(tmpPath);
 
 	if(!strcmp(tmpPath, "<br>")){
 		printf("No .iso file chosen yet!\n");
@@ -141,12 +141,12 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 
 	elm_progressbar_pulse(pb,EINA_TRUE);
 	elm_object_text_set(lb2, "<align=left>Checking ISO md5sum");
-	
+
 	/* set folderPath directory */
 	folderPath = ecore_file_dir_get(isoPath);
 
 	//build terminal command
-	snprintf(md5Path, PATH_MAX+7,  "%s.md5", isoPath); 
+	snprintf(md5Path, PATH_MAX+7,  "%s.md5", isoPath);
 	snprintf(command,PATH_MAX+25,"cd %s && md5sum -c %s",folderPath,md5Path);
 
 	free(isoPath);
@@ -168,7 +168,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 		return;
 	}
 
-	/* execute md5 check. */	
+	/* execute md5 check. */
 	childHandle = ecore_exe_pipe_run(command,
 					ECORE_EXE_PIPE_WRITE |
 					ECORE_EXE_PIPE_READ_LINE_BUFFERED |
@@ -193,11 +193,11 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 
 
 
-static void 
+static void
 usb_check(void *data EINA_UNUSED,Evas_Object *o EINA_UNUSED, void *e)
 {
 	printf("USB Check\n");
-	
+
 	/* use ecore_exe to run badblocks command on chosen USB drive. */
 }
 
@@ -208,7 +208,7 @@ static void
 make_usb(void *data EINA_UNUSED,Evas_Object *o EINA_UNUSED, void *e)
 {
 	printf("make_usb running\n");
-	
+
 	/* use ecore_exe to install the chosen iso from entry1
 	 * onto the selected drive from the genlist using dd
 	 */
@@ -218,12 +218,12 @@ make_usb(void *data EINA_UNUSED,Evas_Object *o EINA_UNUSED, void *e)
 
 
 /* help window */
-static void 
+static void
 help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_info)
 {
    Evas_Object *help, *scroller, *label;
 
-	/* help main window */  
+	/* help main window */
 	help = elm_win_util_standard_add("Help", "Help");
 	elm_win_autodel_set(help, EINA_TRUE);
 	evas_object_size_hint_min_set(help,250,280); //min size not working??
@@ -264,7 +264,7 @@ gl_text_get(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA_UNUS
 }
 
 
-static Eina_Bool 
+static Eina_Bool
 gl_state_get(void *data EINA_UNUSED,
              Evas_Object *obj EINA_UNUSED,
              const char *part EINA_UNUSED)
@@ -290,11 +290,6 @@ gl_filter_get(void *data, Evas_Object *obj EINA_UNUSED, void *key)
 
 
 
-
-
-
-
-
 /* get drive selector working */
 EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
@@ -305,19 +300,19 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	/* This has some bad logic.  Let the user give a single arg or a bunch
 	 * if multiple args are needed.  We really only need the one.
-	 *  Here's an example.  Look at line 373 as well.
+	 * Here's an example.  Look at line 373 as well.
 	 * will run with './eddy -f /path/to/file.iso'
 	 
 	int hold = -10;
 	for (int i=0; argv[i] != NULL; i++){//loop through args
 		if(strcmp(argv[i], "-f") == 0)//compare to possible modifier
 			hold = i+1;//next arg will be iso path, save for later.
-			
+
 		else printf("Invalid argument, ignoring\n");
 	}
 
 	/* look for and perform any cli args */
-	
+
 	char *path = NULL;
 	int i;
 	char align[] = "<align=left>";
@@ -328,7 +323,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 		strcat(align,path);
 		continue;
 		}
-	
+
 	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
 	//set up window
@@ -365,20 +360,20 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_label_ellipsis_set(lb1, EINA_TRUE);
 	evas_object_size_hint_weight_set(lb1, EVAS_HINT_EXPAND, 0.0);
 	evas_object_size_hint_align_set(lb1, EVAS_HINT_FILL, 0.0);
-	
+
 	if(path!=NULL)elm_object_text_set(lb1, align);
 	//~ else elm_object_text_set(lb1, "/0");}
-	
-	
+
+
 	/* label is created, now we can assign the argv to the label.
-	if (arg != -10){  //if it has changed
+	if (hold != -10){  //if it has changed
 		elm_object_text_set(lb1, argv[hold]); //see how this works now?
 	else
-		elm_object_text_set(lb1, "\0");		
+		elm_object_text_set(lb1, "\0");
 	*/
-	
-	
-	
+
+
+
 	elm_table_pack(table, lb1, 1,0,5,1);
 	evas_object_show(lb1);
 
@@ -398,7 +393,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_label_ellipsis_set(lb2, EINA_TRUE);
 	evas_object_size_hint_weight_set(lb2, EVAS_HINT_EXPAND, 1.0);
 	evas_object_size_hint_align_set(lb2, EVAS_HINT_FILL, 0.0);
-	
+
 	elm_table_pack(table, lb2, 1,1,5,1);
 	evas_object_show(lb2);
 
@@ -413,7 +408,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_show(combo);
 
 
-	//example code   
+	//example code
 	glist = elm_genlist_item_class_new();
 	glist->item_style = "default";
 	glist->func.text_get = gl_text_get;
@@ -427,8 +422,8 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 		elm_genlist_item_append(combo, glist, (void *)(uintptr_t)i,
 					NULL, ELM_GENLIST_ITEM_NONE, NULL,
 					(void*)(uintptr_t)(i * 10));
-					
-					
+
+
 	/* USB Check Button */
 	usb_check_bt = elm_button_add(table);
 	elm_button_autorepeat_set(usb_check_bt, EINA_FALSE);
@@ -444,7 +439,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_label_ellipsis_set(lb3, EINA_TRUE);
 	evas_object_size_hint_weight_set(lb3, EVAS_HINT_EXPAND, 0.0);
 	evas_object_size_hint_align_set(lb3, EVAS_HINT_FILL, 0.5);
-	
+
 	elm_table_pack(table, lb3, 1,4,5,1);
 	evas_object_show(lb3);
 
@@ -464,13 +459,13 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_button_autorepeat_set(help_bt, EINA_FALSE);
 	elm_object_text_set(help_bt, "?");
 	evas_object_size_hint_align_set(help_bt, EVAS_HINT_FILL, 0.5);
-	
+
 	elm_table_pack(table,help_bt,5,13,1,1);
 	evas_object_show(help_bt);
 
-	
+
 	/* progress bar */
-	
+
 	//totally broken... Pulsing isn't working at all.
 	pb = elm_progressbar_add(table);
 	evas_object_size_hint_align_set(pb, EVAS_HINT_FILL, 0.5);
@@ -480,15 +475,15 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	elm_table_pack(table,pb,0,14,6,1);
 	evas_object_show(pb);
-	
+
 	//add callbacks for buttons
 	evas_object_smart_callback_add(iso_bt,"file,chosen",iso_chosen, lb1);
 	evas_object_smart_callback_add(md5_check_bt,"clicked",md5_check,lb1);
 	evas_object_smart_callback_add(usb_check_bt,"clicked",usb_check,NULL);
 	evas_object_smart_callback_add(dd_bt,"clicked",make_usb,NULL);
 	evas_object_smart_callback_add(help_bt,"clicked",help_info,NULL);
-	
-	/* set final window size and display it */	
+
+	/* set final window size and display it */
 	evas_object_resize(win, ELM_SCALE_SIZE(420), ELM_SCALE_SIZE(300));
 	evas_object_show(table);  //is this needed?
 	evas_object_show(win);
@@ -506,15 +501,15 @@ ELM_MAIN()
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
- * 
+ *
  */
