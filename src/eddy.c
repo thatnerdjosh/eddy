@@ -226,12 +226,15 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 	/* help main window */
 	help = elm_win_util_standard_add("Help", "Help");
 	elm_win_autodel_set(help, EINA_TRUE);
-	evas_object_size_hint_min_set(help,250,280); //min size not working??
+	evas_object_size_hint_min_set(help,270,150); //min size not working??
 
 	label = elm_label_add(help);
 	elm_object_text_set(label, "To perform an MD5sum check on your iso,<br>\
 	both files (.iso and .md5) MUST be in the<br>\
 	same folder and you must select an iso.<br><br>\
+	Opening Eddy from the command line using: <br>\
+	./eddy -f ~/path/to/iso-file.iso<br>\
+	will fill the iso field in Eddy<br>\
 	Expect more features as time goes on.");
 	efl_gfx_hint_align_set(label,0.0,1);
 	evas_object_show(label);
@@ -246,7 +249,7 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 	elm_scroller_propagate_events_set(scroller, EINA_TRUE);
 	elm_scroller_page_relative_set(scroller, 0, 1);
 	elm_scroller_region_show(scroller, 50, 50, 200, 200);
-	evas_object_resize(help, 300,185);
+	evas_object_resize(help, 270,150);
 
 	evas_object_show(help);
 }
@@ -287,9 +290,6 @@ gl_filter_get(void *data, Evas_Object *obj EINA_UNUSED, void *key)
 }
 
 
-
-
-
 /* get drive selector working */
 EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
@@ -303,10 +303,9 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	char path[PATH_MAX]; 
 	int hold = -10;
 	
-	for (int i=0; argv[i] != NULL; i++){//loop through args
-		if(strcmp(argv[i], "-f") == 0)//compare to possible modifier
-			hold = i+1;//next arg will be iso path, save for later.
-			snprintf(path, sizeof(path), "<align=left>%s", argv[hold]);
+	for (int i=0; argv[i] != NULL; i++){
+		if(strcmp(argv[i], "-f") == 0) hold = i+1;
+		snprintf(path, sizeof(path), "<align=left>%s", argv[hold]);
 	}
 	
 
