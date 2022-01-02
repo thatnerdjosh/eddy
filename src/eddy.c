@@ -298,31 +298,14 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	Evas_Object *help_bt, *sep, *sep2, *combo;
 	Elm_Genlist_Item_Class *glist;
 
-	/* This has some bad logic.  Let the user give a single arg or a bunch
-	 * if multiple args are needed.  We really only need the one.
-	 * Here's an example.  Look at line 373 as well.
-	 * will run with './eddy -f /path/to/file.iso'
+	/* look for and perform any cli args
+	 * will run with './eddy -f /path/to/file.iso' */
 	 
 	int hold = -10;
 	for (int i=0; argv[i] != NULL; i++){//loop through args
 		if(strcmp(argv[i], "-f") == 0)//compare to possible modifier
 			hold = i+1;//next arg will be iso path, save for later.
-
-		else printf("Invalid argument, ignoring\n");
 	}
-
-	/* look for and perform any cli args */
-
-	char *path = NULL;
-	int i;
-	char align[] = "<align=left>";
-
-	for(i=argc; i>=3; i--){
-		if(strcmp(argv[1],"-p")==0)	path = argv[2];
-		if(strcmp(argv[2],"-p")==0) path = argv[1];
-		strcat(align,path);
-		continue;
-		}
 
 	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
@@ -361,18 +344,12 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_size_hint_weight_set(lb1, EVAS_HINT_EXPAND, 0.0);
 	evas_object_size_hint_align_set(lb1, EVAS_HINT_FILL, 0.0);
 
-	if(path!=NULL)elm_object_text_set(lb1, align);
-	//~ else elm_object_text_set(lb1, "/0");}
 
-
-	/* label is created, now we can assign the argv to the label.
+	/* label is created, now we can assign the argv to the label. */
 	if (hold != -10){  //if it has changed
-		elm_object_text_set(lb1, argv[hold]); //see how this works now?
-	else
-		elm_object_text_set(lb1, "\0");
-	*/
-
-
+		elm_object_text_set(lb1, argv[hold]);
+	}
+	else elm_object_text_set(lb1, "\0");
 
 	elm_table_pack(table, lb1, 1,0,5,1);
 	evas_object_show(lb1);
