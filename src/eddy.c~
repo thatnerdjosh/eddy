@@ -1,14 +1,14 @@
 	/*************************************************************
 	* Eddy is a simple live USB creation utility.                *
 	*                                                            *
-	* Authors                                                    *
+	* Author:                                                    *
 	*                                                            *
 	* Doug Yanez            <Deepspeed@bodhilinux.com>           *
 	*                                                            *
 	* Contributors:                                              *
 	*                                                            * 
-	* Gareth Williams	<gareth.m.williams@gmail.com>        *
-	* 	                                                     *
+	* Gareth Williams		<gareth.m.williams@gmail.com         *
+	* 	                                                         *
 	* Official upstream:  https://github.com/Deepspeed/eddy      *
 	*                                                            *
 	* License:  GPL v2                                           *
@@ -23,6 +23,9 @@
  *
  * Get drive checker working
  *
+ * Change popen() to EFL an threading method
+ *
+ * Get progress bar working
  */
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
@@ -31,6 +34,7 @@
 #include <Elementary.h>
 #include <time.h>
 #include <string.h>
+#include <stdio.h>
 
 #define BUFFER_SIZE 1024
 
@@ -39,10 +43,9 @@
 Evas_Object *entry2, *lb2, *pb;
 
 
-/* function for child process to finish md5 check and show results properly */
 
 static Eina_Bool 
-md5_msg_handler(void *d EINA_UNUSED, int t EINA_UNUSED, void *event)
+msg_handler(void *d EINA_UNUSED, int t EINA_UNUSED, void *event)
 {
 	Ecore_Exe_Event_Data *dataFromProcess = (Ecore_Exe_Event_Data *)event;
 	int i;
@@ -51,30 +54,35 @@ md5_msg_handler(void *d EINA_UNUSED, int t EINA_UNUSED, void *event)
 	char result[PATH_MAX];//final parsed result
 	char str[] = "<align=left>Md5sum checked: ";
 	
-	if (dataFromProcess->size >= (BUFFER_SIZE - 1)){
+
+	if (dataFromProcess->size >= (BUFFER_SIZE - 1))
+		{
 		printf("Data too big for bugger. error\n");
 		return ECORE_CALLBACK_DONE;
 	}
 
 	strncpy(msg, dataFromProcess->data, dataFromProcess->size);
 	msg[dataFromProcess->size] = 0;
-	printf("%s\n", msg);
 
-	if (strcmp(msg, "quit") == 0){
+	if (strcmp(msg, "quit") == 0)
+	{
 		printf("My child said to me, QUIT!\n");
 		ecore_main_loop_quit();
 	}
 	else{  //set results
 		i = strlen(msg);
-		while(msg[i] != ':')//iterate backwards to :
+		while(msg[i] != ':')
 			i--;
-		
-		for(i += 2; msg[i] != '\0'; i++, j++)//store result separately
+		i += 2;
+		while(msg[i] != '\0'){
 			result[j] = msg[i];
-		
+			i++;
+			j++;
+		}
 		strcat(str, result);//format text for label
 		
 		elm_object_text_set(lb2, str);//show test results
+		printf("%s\n", msg);
 	}
 	elm_progressbar_pulse(pb, EINA_FALSE);
 	return ECORE_CALLBACK_DONE;
@@ -102,7 +110,9 @@ iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 		return;
 	}
 	snprintf(buf, sizeof(buf), "<align=left>%s", file);
-	elm_object_text_set(lb1, buf);  
+	elm_object_text_set(lb1, buf);
+	
+	//printf("File Chosen: %s\n", file ? file : "*none chosen!*");    
 }
 
 
@@ -114,43 +124,70 @@ iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 static void 
 md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 {	
-	EINA_SAFETY_ON_NULL_RETURN(data);
+
+	int i;
 
 	//ecore_exe stuff
 	pid_t childPid;
 	Ecore_Exe *childHandle;
-
+	
 	//filepaths
-	char *isoPath = NULL;
-	char md5Path[PATH_MAX+8];
-	char *folderPath = NULL;
-	char command[PATH_MAX+26];//terminal command
+	char isoPath[PATH_MAX];
+	char md5Path[PATH_MAX];
+	char folderPath[PATH_MAX];
+	char command[PATH_MAX];//terminal command
 	char output[PATH_MAX];//command output
 	char result[PATH_MAX];//final parsed result
+	//hacky stuff
+	char tmp[PATH_MAX];//temp holder for data from tmpPath
+	
+
 
 	const char *tmpPath = elm_object_text_get(data);
 
-	/* remove extra <align=left> bit */
-	isoPath = elm_entry_markup_to_utf8(tmpPath);	
 
-	if(!strcmp(tmpPath, "<br>")){
+	/* remove extra <align=left> bit */	
+
+	if(tmpPath[12] == '/'){//if file was chosen
+		tmp[0] = '\0';
+		strcat(tmp,tmpPath);
+		for (i=0; tmp[i+12] != '\0'; i++)
+			isoPath[i] = tmp[i+12];
+
+		isoPath[i+1] = '\0';
+	}
+	else {
 		printf("No .iso file chosen yet!\n");
 		elm_object_text_set(lb2,"<align=left>No .iso file chosen yet!");
 		return;
 	}
-
+	
 	elm_progressbar_pulse(pb,EINA_TRUE);
 	elm_object_text_set(lb2, "<align=left>Checking ISO md5sum");
 	
-	/* set folderPath directory */
-	folderPath = ecore_file_dir_get(isoPath);
+	/* set folderPath directory with string wizardry */
+	for (i = strlen(isoPath); i > 0; i--){
+		if (isoPath[i] != '/')//ignore file name
+			continue;
+
+		folderPath[i+1] = '\0';
+		for (; i >= 0; i--)
+			folderPath[i] = isoPath[i];
+		break;
+	}
 
 	//build terminal command
-	snprintf(md5Path, PATH_MAX+7,  "%s.md5", isoPath); 
-	snprintf(command,PATH_MAX+25,"cd %s && md5sum -c %s",folderPath,md5Path);
-
-	free(isoPath);
-	free(folderPath);
+	command[0] == '\0';
+	strcpy(command, "cd ");
+	strcat(command, folderPath);
+	strcat(command, " && md5sum -c ");
+	strcat(command, isoPath);
+	strcat(command, ".md5");
+	
+	//build md5 file path
+	md5Path[0] = '\0';
+	strcpy(md5Path,isoPath);
+	strcat(md5Path,".md5");
 
 	//check for md5 file existence
 	if(!ecore_file_exists(md5Path)){
@@ -159,7 +196,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 		elm_progressbar_pulse(pb, EINA_FALSE);
 		return;
 	}
-
+	
 	//readability check
 	if(!ecore_file_can_read(md5Path)){
 		printf("md5 file cannot be read!\n");
@@ -167,17 +204,21 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 		elm_progressbar_pulse(pb, EINA_FALSE);
 		return;
 	}
+	
 
-	/* execute md5 check. */	
+	/*execute md5 check.  
+	* md5sum requires .ISO and .md5 files to be in the same folder!
+	*/	
 	childHandle = ecore_exe_pipe_run(command,
 					ECORE_EXE_PIPE_WRITE |
 					ECORE_EXE_PIPE_READ_LINE_BUFFERED |
 					ECORE_EXE_PIPE_READ, NULL);
 
-	if (childHandle == NULL){
+	if (childHandle == NULL)
+	{
 		fprintf(stderr, "Could not create a child process!\n");
 		elm_progressbar_pulse(pb, EINA_FALSE);
-		return;
+		goto ecore_shutdown;
 	}
 
 	childPid = ecore_exe_pid_get(childHandle);
@@ -185,13 +226,15 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	if (childPid == -1)
 		fprintf(stderr, "Could not retrieve the PID!\n");
 	else
-		printf("Child process PID:%u\n",(unsigned int)childPid);
+		printf("The child process has PID:%u\n", (unsigned int)childPid);
 
-	ecore_event_handler_add(ECORE_EXE_EVENT_DATA, md5_msg_handler, NULL);
+	ecore_event_handler_add(ECORE_EXE_EVENT_DATA, msg_handler, NULL);
+	ecore_shutdown:
+		ecore_shutdown();
+		
+	//elm_progressbar_pulse(pb, EINA_FALSE);
+	
 }
-
-
-
 
 static void 
 usb_check(void *data EINA_UNUSED,Evas_Object *o EINA_UNUSED, void *e)
@@ -200,8 +243,6 @@ usb_check(void *data EINA_UNUSED,Evas_Object *o EINA_UNUSED, void *e)
 	
 	/* use ecore_exe to run badblocks command on chosen USB drive. */
 }
-
-
 
 
 static void
@@ -290,11 +331,6 @@ gl_filter_get(void *data, Evas_Object *obj EINA_UNUSED, void *key)
 
 
 
-
-
-
-
-
 /* get drive selector working */
 EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
@@ -303,18 +339,6 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	Evas_Object *help_bt, *sep, *sep2, *combo;
 	Elm_Genlist_Item_Class *glist;
 
-	/* This has some bad logic.  Let the user give a single arg or a bunch
-	 * if multiple args are needed.  We really only need the one.
-	 *  Here's an example.  Look at line 373 as well.
-	 * will run with './eddy -f /path/to/file.iso'
-	 
-	int hold = -10;
-	for (int i=0; argv[i] != NULL; i++){//loop through args
-		if(strcmp(argv[i], "-f") == 0)//compare to possible modifier
-			hold = i+1;//next arg will be iso path, save for later.
-			
-		else printf("Invalid argument, ignoring\n");
-	}
 
 	/* look for and perform any cli args */
 	
@@ -365,20 +389,8 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_label_ellipsis_set(lb1, EINA_TRUE);
 	evas_object_size_hint_weight_set(lb1, EVAS_HINT_EXPAND, 0.0);
 	evas_object_size_hint_align_set(lb1, EVAS_HINT_FILL, 0.0);
-	
-	if(path!=NULL)elm_object_text_set(lb1, align);
+			if(path!=NULL)elm_object_text_set(lb1, align);
 	//~ else elm_object_text_set(lb1, "/0");}
-	
-	
-	/* label is created, now we can assign the argv to the label.
-	if (arg != -10){  //if it has changed
-		elm_object_text_set(lb1, argv[hold]); //see how this works now?
-	else
-		elm_object_text_set(lb1, "\0");		
-	*/
-	
-	
-	
 	elm_table_pack(table, lb1, 1,0,5,1);
 	evas_object_show(lb1);
 
