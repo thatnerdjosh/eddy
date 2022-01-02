@@ -300,12 +300,15 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	/* look for and perform any cli args
 	 * will run with './eddy -f /path/to/file.iso' */
-	 
+	char path[PATH_MAX]; 
 	int hold = -10;
+	
 	for (int i=0; argv[i] != NULL; i++){//loop through args
 		if(strcmp(argv[i], "-f") == 0)//compare to possible modifier
 			hold = i+1;//next arg will be iso path, save for later.
+			snprintf(path, sizeof(path), "<align=left>%s", argv[hold]);
 	}
+	
 
 	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 
@@ -347,7 +350,7 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 	/* label is created, now we can assign the argv to the label. */
 	if (hold != -10){  //if it has changed
-		elm_object_text_set(lb1, argv[hold]);
+		elm_object_text_set(lb1, path);
 	}
 	else elm_object_text_set(lb1, "\0");
 
