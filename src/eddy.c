@@ -234,7 +234,7 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 	same folder and you must select an iso.<br><br>\
 	Opening Eddy from the command line using: <br>\
 	./eddy -f ~/path/to/iso-file.iso<br>\
-	will fill the iso field in Eddy<br>\
+	will fill the iso field in Eddy<br><br>\
 	Expect more features as time goes on.");
 	efl_gfx_hint_align_set(label,0.0,1);
 	evas_object_show(label);
