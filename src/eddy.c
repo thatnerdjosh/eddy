@@ -7,8 +7,11 @@
 	*                                                            *
 	* Contributors:                                              *
 	*                                                            *
-	* Gareth Williams	<gareth.m.williams@gmail.com>        *
-	* 	                                                     *
+	* Gareth Williams       <gareth.m.williams@gmail.com>        *
+	*                                                            *
+	* Robert Wiley          <ylee@bodhilinux.com>                *
+	*                                                            *
+	*                                                            *
 	* Official upstream:  https://github.com/Deepspeed/eddy      *
 	*                                                            *
 	* License:  GPL v2                                           *
@@ -22,6 +25,16 @@
  * Get drive selector working
  *
  * Get drive checker working
+ *
+ * Get dd button working
+ *
+ * Makefile
+ *
+ * Manpage
+ *
+ * --help option
+ *
+ * .desktop file
  *
  */
 #ifndef _GNU_SOURCE
@@ -304,8 +317,10 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	int hold = -10;
 	
 	for (int i=0; argv[i] != NULL; i++){
-		if(strcmp(argv[i], "-f") == 0) hold = i+1;
-		snprintf(path, sizeof(path), "<align=left>%s", argv[hold]);
+		if(strcmp(argv[i], "-f") == 0){
+			hold = i+1;
+			snprintf(path,sizeof(path),"<align=left>%s",argv[hold]);
+		}
 	}
 	
 
@@ -327,7 +342,6 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 
 
 	/* ISO selector button */
-
 	iso_bt = elm_fileselector_button_add(table);
 	elm_fileselector_button_inwin_mode_set(iso_bt, EINA_TRUE);
 	elm_fileselector_expandable_set(iso_bt, EINA_FALSE);
@@ -345,7 +359,6 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	elm_label_ellipsis_set(lb1, EINA_TRUE);
 	evas_object_size_hint_weight_set(lb1, EVAS_HINT_EXPAND, 0.0);
 	evas_object_size_hint_align_set(lb1, EVAS_HINT_FILL, 0.0);
-
 
 	/* label is created, now we can assign the argv to the label. */
 	if (hold != -10){  //if it has changed
