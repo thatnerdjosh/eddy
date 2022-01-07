@@ -14,15 +14,17 @@
 	*                                                            *
 	* Official upstream:  https://github.com/Deepspeed/eddy      *
 	*                                                            *
+	* Copyright: Doug Yanez 2021                                 *
+	*                                                            *
 	* License:  GPL v2                                           *
-	**************************************************************
+	*************************************************************/
 //compile with
-//  gcc -o eddy eddy.c `pkg-config --cflags --libs eina efl elementary`
+//  gcc -o eddy eddy.c `pkg-config --cflags --libs eina efl elementary eeze`
 
 
 /* TODO:
  *
- * Get drive selector working
+ * Get drive selector working properly
  *
  * Get drive checker working
  *
@@ -42,6 +44,7 @@
 #endif
 
 #include <Elementary.h>
+#include <Eeze.h>
 #include <time.h>
 #include <string.h>
 
@@ -49,7 +52,7 @@
 
 
 
-Evas_Object *entry2, *lb2, *pb;
+Evas_Object *entry2, *lb2, *pb, *hv;
 
 
 /* function for child process to finish md5 check and show results properly */
@@ -197,8 +200,8 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 
 	if (childPid == -1)
 		fprintf(stderr, "Could not retrieve the PID!\n");
-	else
-		printf("Child process PID:%u\n",(unsigned int)childPid);
+//	else
+//		printf("Child process PID:%u\n",(unsigned int)childPid);
 
 	ecore_event_handler_add(ECORE_EXE_EVENT_DATA, md5_msg_handler, NULL);
 }
@@ -253,12 +256,14 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 	evas_object_show(label);
 
 	scroller = elm_scroller_add(help);
-	evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_weight_set(scroller, 
+					  EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	elm_win_resize_object_add(help, scroller);
 	evas_object_show(scroller);
 	elm_object_content_set(scroller, label);
 	elm_scroller_bounce_set(scroller, EINA_TRUE, EINA_FALSE);
-	elm_scroller_policy_set(scroller, ELM_SCROLLER_POLICY_ON, ELM_SCROLLER_POLICY_ON);
+	elm_scroller_policy_set(scroller, 
+				ELM_SCROLLER_POLICY_ON, ELM_SCROLLER_POLICY_ON);
 	elm_scroller_propagate_events_set(scroller, EINA_TRUE);
 	elm_scroller_page_relative_set(scroller, 0, 1);
 	elm_scroller_region_show(scroller, 50, 50, 200, 200);
@@ -269,46 +274,32 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 
 
 
-/* example functions for combobox and genlist */
-
-static char *
-gl_text_get(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA_UNUSED)
+static void find_drives()
 {
-   char buf[256];
-   snprintf(buf, sizeof(buf), "Item # %i", (int)(uintptr_t)data);
-   return strdup(buf);
+	//this needs to be parsed better.  Not sure how.
+	
+	//Need drive size, /dev/sdx address, filesystem, and mounted state
+	Eina_List *drives = eeze_udev_find_by_type(EEZE_UDEV_TYPE_DRIVE_REMOVABLE,
+						    NULL);
+	const char *drv;
+
+	EINA_LIST_FREE(drives,drv){
+//		printf("DRIVE: %s\n",drv);
+		elm_hoversel_item_add(hv,drv,NULL,ELM_ICON_NONE,NULL,drv);
+		eina_stringshare_del(drv);//free them as we list them in hv
+	}
 }
 
 
-static Eina_Bool
-gl_state_get(void *data EINA_UNUSED,
-             Evas_Object *obj EINA_UNUSED,
-             const char *part EINA_UNUSED)
-{
-   return EINA_FALSE;
-}
 
-
-static Eina_Bool
-gl_filter_get(void *data, Evas_Object *obj EINA_UNUSED, void *key)
-{
-   // if the key is empty/NULL, return true for item
-   if (!strlen((char *)key)) return EINA_TRUE;
-   char buf[256];
-   snprintf(buf, sizeof(buf), "Item # %i", (int)(uintptr_t)data);
-   if (strcasestr(buf, (char *)key))
-     return EINA_TRUE;
-   // Default case should return false (item fails filter hence will be hidden)
-   return EINA_FALSE;
-}
 
 
 /* get drive selector working */
 EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 {
-	Evas_Object *win, *table, *hbox, *ic1, *ic2, *entry1, *entry3, *lb1, *lb3;
+	Evas_Object *win, *table, *hbox, *entry1, *entry3, *lb1, *lb3;
 	Evas_Object *iso_bt, *md5_check_bt, *usb_check_bt, *dd_bt;
-	Evas_Object *help_bt, *sep, *sep2, *combo;
+	Evas_Object *help_bt;
 	Elm_Genlist_Item_Class *glist;
 
 	/* look for and perform any cli args
@@ -321,6 +312,8 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 			hold = i+1;
 			snprintf(path,sizeof(path),"<align=left>%s",argv[hold]);
 		}
+		if(strcmp(argv[i], "-h") == 0)
+			printf("Help not implemented yet.  Good luck!\n");
 	}
 	
 
@@ -390,32 +383,18 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 	evas_object_show(lb2);
 
 
-	/* USB chooser box */
-	combo = elm_combobox_add(table);
-	elm_object_part_text_set(combo, "Chooser", "Chose USB Drive");
-	evas_object_size_hint_weight_set(combo, EVAS_HINT_EXPAND, 0.0);
-	evas_object_size_hint_align_set(combo, EVAS_HINT_FILL, 0.5);
-
-	elm_table_pack(table, combo, 0,3,1,1);
-	evas_object_show(combo);
-
-
-	//example code
-	glist = elm_genlist_item_class_new();
-	glist->item_style = "default";
-	glist->func.text_get = gl_text_get;
-	glist->func.content_get = NULL;
-	glist->func.state_get = gl_state_get;
-	glist->func.filter_get = gl_filter_get;
-	glist->func.del = NULL;
-
-	//more examples
-	for (int i = 0; i < 10; i++)
-		elm_genlist_item_append(combo, glist, (void *)(uintptr_t)i,
-					NULL, ELM_GENLIST_ITEM_NONE, NULL,
-					(void*)(uintptr_t)(i * 10));
-
-
+	/* USB chooser hoversel */
+	hv = elm_hoversel_add(win);
+	elm_hoversel_hover_parent_set(hv, win);
+	elm_hoversel_horizontal_set(hv, EINA_FALSE);
+	elm_object_text_set(hv, "Choose a drive");
+	elm_hoversel_auto_update_set(hv, EINA_TRUE);
+	
+	elm_table_pack(table, hv, 0,3,1,1);
+	evas_object_show(hv);
+	
+	find_drives();
+	
 	/* USB Check Button */
 	usb_check_bt = elm_button_add(table);
 	elm_button_autorepeat_set(usb_check_bt, EINA_FALSE);
