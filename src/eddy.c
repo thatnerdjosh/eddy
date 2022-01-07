@@ -276,7 +276,18 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 
 static void find_drives()
 {
-	//this needs to be parsed better.  Not sure how.
+	//this needs to be way better.  Gotta use more eeze stuff.
+	/*
+	useful commands:
+
+	eeze_disk_devpath_get (Eeze_Disk *disk)
+	eeze_disk_fstype_get (Eeze_Disk *disk)
+	eeze_disk_label_get (Eeze_Disk *disk)
+	eeze_disk_mounted_get (Eeze_Disk *disk)
+	eeze_disk_unmount (Eeze_Disk *disk)
+	eeze_disk_mount_point_get (Eeze_Disk *disk)
+
+	*/
 	
 	//Need drive size, /dev/sdx address, filesystem, and mounted state
 	Eina_List *drives = eeze_udev_find_by_type(EEZE_UDEV_TYPE_DRIVE_REMOVABLE,
@@ -294,12 +305,11 @@ static void find_drives()
 
 
 
-/* get drive selector working */
-EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
+
+EAPI_MAIN int elm_main(int argc, char **argv)
 {
-	Evas_Object *win, *table, *hbox, *entry1, *entry3, *lb1, *lb3;
-	Evas_Object *iso_bt, *md5_check_bt, *usb_check_bt, *dd_bt;
-	Evas_Object *help_bt;
+	Evas_Object *win, *table, *entry1, *entry3, *lb1, *lb3;
+	Evas_Object *iso_bt, *md5_check_bt, *usb_check_bt, *dd_bt, *help_bt;
 	Elm_Genlist_Item_Class *glist;
 
 	/* look for and perform any cli args
@@ -312,8 +322,10 @@ EAPI_MAIN int elm_main(int argc EINA_UNUSED, char **argv EINA_UNUSED)
 			hold = i+1;
 			snprintf(path,sizeof(path),"<align=left>%s",argv[hold]);
 		}
-		if(strcmp(argv[i], "-h") == 0)
-			printf("Help not implemented yet.  Good luck!\n");
+		if(strcmp(argv[i], "-h") == 0){
+			printf("Help not implemented here yet.  Good luck!\n");
+			return 0;
+		}
 	}
 	
 
