@@ -93,8 +93,9 @@ iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 		return;
 
 	int i = strlen(file);
+	printf("file %s %d %c\n", file, i, file[i-4]);
 	//filetype filter
-	if(file[i-4]!='.'&&file[i-3]!='i'&&file[i-2]!='s'&&file[i-1]!='o'){
+	if(file[i-4]!='.' || file[i-3]!='i' || file[i-2]!='s' || file[i-1]!='o'){
 		printf("Wrong file type!  Try again.\n");
 		elm_object_text_set(lb1,"<align=left>Please choose .iso file");
 		return;
