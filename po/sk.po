@@ -1,0 +1,41 @@
+# Slovak translations for eddy package.
+# This file is put in the public domain.
+# Automatically generated, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: eddy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-01-08 21:04+0100\n"
+"PO-Revision-Date: 2022-01-08 21:04+0100\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: sk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#: src/eddy.c:334
+msgid "Eddy - Live USB Utility"
+msgstr "Eddy - tvorba USB "
+
+#: src/eddy.c:354
+msgid "Select ISO"
+msgstr "Vyber ISO"
+
+#: src/eddy.c:380
+msgid "Check md5"
+msgstr "Skontroluj md5"
+
+#: src/eddy.c:401
+msgid "Choose a drive"
+msgstr "Vyber zariadenie"
+
+#: src/eddy.c:412
+msgid "Check USB"
+msgstr "Skontroluj USB"
+
+#: src/eddy.c:432
+msgid "Make Live USB"
+msgstr "Vytvor bootovateľné USB"

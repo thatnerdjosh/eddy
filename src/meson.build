@@ -3,6 +3,6 @@ executable('eddy', [
     'eddy.c'
   ],
   include_directories: inc,
-  dependencies       : [ deps, eeze_dep ] ,
+  dependencies       : [ deps, eeze_dep, dep_intl ] ,
   gui_app            : true,
   install            : true)

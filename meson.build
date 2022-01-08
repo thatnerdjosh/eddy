@@ -18,7 +18,9 @@ eeze_dep = dependency('eeze', required: true)
 ##### dir locations
 dir_prefix = get_option('prefix')
 dir_bin    = join_paths(dir_prefix, get_option('bindir'))
+dir_lib    = join_paths(dir_prefix, get_option('libdir'))
 dir_data   = join_paths(dir_prefix, get_option('datadir'))
+dir_locale = join_paths(dir_prefix, get_option('localedir'))
 
 install_data([ 'AUTHORS',
                'LICENSE'
@@ -31,11 +33,17 @@ cfg.set_quoted('PACKAGE'                 , proj)
 cfg.set_quoted('PACKAGE_NAME'            , proj)
 cfg.set_quoted('PACKAGE_VERSION'         , ver)
 cfg.set_quoted('PACKAGE_STRING'          , proj + ' ' + ver)
+cfg.set_quoted('LOCALE_DIR'              , join_paths([dir_prefix, 'share/locale']))
 cfg.set_quoted('PACKAGE_URL'             , base_url + proj)
 cfg.set_quoted('PACKAGE_BIN_DIR'         , dir_bin)
+cfg.set_quoted('PACKAGE_LIB_DIR'         , dir_lib)
 cfg.set_quoted('PACKAGE_DATA_DIR'        , join_paths(dir_data, proj))
+cfg.set_quoted('LOCALEDIR'               , dir_locale)
+
+subdir('po')
 
 configure_file(output: 'config.h', configuration: cfg)
+
 
 ##### subdirs
 subdir('src')

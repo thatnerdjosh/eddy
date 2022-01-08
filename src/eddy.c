@@ -21,17 +21,25 @@
 //compile with
 //  gcc -o eddy eddy.c `pkg-config --cflags --libs eina efl elementary eeze`
 
+
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
 #endif
 
+#include "../config.h"
 #include <Elementary.h>
 #include <Eeze.h>
 #include <time.h>
 #include <string.h>
 
-#define BUFFER_SIZE 1024
+#ifdef ENABLE_NLS
+# include <libintl.h>
+# define _(x) gettext(x)
+#else
+# define _(x) (x)
+#endif
 
+#define BUFFER_SIZE 1024
 
 
 Evas_Object *entry2, *lb2, *pb, *hv;
@@ -283,13 +291,18 @@ static void find_drives()
 	}
 }
 
-
-
-
-
-
 EAPI_MAIN int elm_main(int argc, char **argv)
 {
+   elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
+#ifdef ENABLE_NLS
+   elm_app_compile_locale_set(LOCALEDIR);
+#endif
+   elm_app_info_set(elm_main, "eddy", "COPYING");
+
+   setlocale(LC_ALL, "");
+   bindtextdomain(PACKAGE, LOCALE_DIR);
+   textdomain(PACKAGE);
+	
 	Evas_Object *win, *table, *entry1, *entry3, *lb1, *lb3;
 	Evas_Object *iso_bt, *md5_check_bt, *usb_check_bt, *dd_bt, *help_bt;
 	Elm_Genlist_Item_Class *glist;
@@ -311,10 +324,8 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 	}
 	
 
-	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
-
 	//set up window
-	win = elm_win_util_standard_add("main", "Eddy - Live USB Utility");
+	win = elm_win_util_standard_add("main", _("Eddy - Live USB Utility"));
 	elm_win_autodel_set(win, EINA_TRUE);
 
 	elm_app_name_set("Eddy");
@@ -334,7 +345,7 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 	elm_fileselector_expandable_set(iso_bt, EINA_FALSE);
 	elm_fileselector_folder_only_set(iso_bt, EINA_FALSE);
 	elm_fileselector_is_save_set(iso_bt, EINA_TRUE);
-	elm_object_text_set(iso_bt, "Select ISO");
+	elm_object_text_set(iso_bt, _("Select ISO"));
 	evas_object_size_hint_align_set(iso_bt, EVAS_HINT_FILL, 0.5);
 
 	elm_table_pack(table,iso_bt,0,0,1,1);
@@ -360,7 +371,7 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 	/* Md5 Check Button */
 	md5_check_bt = elm_button_add(table);
 	elm_button_autorepeat_set(md5_check_bt, EINA_FALSE);
-	elm_object_text_set(md5_check_bt, "Check md5");
+	elm_object_text_set(md5_check_bt, _("Check md5"));
 	evas_object_size_hint_align_set(md5_check_bt, EVAS_HINT_FILL, 0.5);
 
 	elm_table_pack(table,md5_check_bt,0,1,1,1);
@@ -381,7 +392,7 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 	hv = elm_hoversel_add(win);
 	elm_hoversel_hover_parent_set(hv, win);
 	elm_hoversel_horizontal_set(hv, EINA_FALSE);
-	elm_object_text_set(hv, "Choose a drive");
+	elm_object_text_set(hv, _("Choose a drive"));
 	elm_hoversel_auto_update_set(hv, EINA_TRUE);
 	
 	elm_table_pack(table, hv, 0,3,1,1);
@@ -392,7 +403,7 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 	/* USB Check Button */
 	usb_check_bt = elm_button_add(table);
 	elm_button_autorepeat_set(usb_check_bt, EINA_FALSE);
-	elm_object_text_set(usb_check_bt, "Check USB");
+	elm_object_text_set(usb_check_bt, _("Check USB"));
 	evas_object_size_hint_align_set(usb_check_bt, EVAS_HINT_FILL, 0.5);
 
 	elm_table_pack(table,usb_check_bt,0,4,1,1);
@@ -412,7 +423,7 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 	/* DD buttom */
 	dd_bt = elm_button_add(table);
 	elm_button_autorepeat_set(dd_bt, EINA_FALSE);
-	elm_object_text_set(dd_bt, "Make Live USB");
+	elm_object_text_set(dd_bt, _("Make Live USB"));
 	evas_object_size_hint_align_set(dd_bt, EVAS_HINT_FILL, 0.5);
 
 	elm_table_pack(table,dd_bt,0,12,1,1);
