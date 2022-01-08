@@ -13,3 +13,7 @@ Manpage
 add localization support
 
 help window should not open if it is already opened
+
+Help window should close when main window closed
+
+Standardize hoversel sizing to match buttons
