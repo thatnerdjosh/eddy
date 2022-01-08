@@ -86,7 +86,17 @@ md5_msg_handler(void *d EINA_UNUSED, int t EINA_UNUSED, void *event)
 	return ECORE_CALLBACK_DONE;
 }
 
+/* return file extension of a file path */
+static const char *
+file_get_ext(const char *file)
+{
+	EINA_SAFETY_ON_NULL_RETURN_VAL(file, NULL);
 
+	char *base = ecore_file_strip_ext(file);
+	int i = strlen(base) + 1;
+	free(base);
+	return file + i*sizeof(char);
+}
 
 /* get the ISO selected and set it to a visible entry*/
 static void
@@ -97,10 +107,9 @@ iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 	const char *file = event_info;
 	char buf[PATH_MAX];
 	Evas_Object *lb1 = data;
-	int i = strlen(file);
 
 	//filetype filter
-	if(file[i-4]!='.' || file[i-3]!='i' || file[i-2]!='s' || file[i-1]!='o'){
+	if(strcmp(file_get_ext(file), "iso")){
 		printf("Wrong file type!  Try again.\n");
 		elm_object_text_set(lb1,"<align=left>Please choose .iso file");
 		return;
@@ -108,10 +117,6 @@ iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 	snprintf(buf, sizeof(buf), "<align=left>%s", file);
 	elm_object_text_set(lb1, buf);
 }
-
-
-
-
 
 /* Check selected md5 file against ISO.  ISO must be in same folder. */
 
