@@ -84,16 +84,13 @@ md5_msg_handler(void *d EINA_UNUSED, int t EINA_UNUSED, void *event)
 static void
 iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
+	EINA_SAFETY_ON_NULL_RETURN(event_info);
 
 	const char *file = event_info;
 	char buf[PATH_MAX];
 	Evas_Object *lb1 = data;
-
-	if(!file)
-		return;
-
 	int i = strlen(file);
-	printf("file %s %d %c\n", file, i, file[i-4]);
+
 	//filetype filter
 	if(file[i-4]!='.' || file[i-3]!='i' || file[i-2]!='s' || file[i-1]!='o'){
 		printf("Wrong file type!  Try again.\n");
