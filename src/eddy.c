@@ -21,24 +21,6 @@
 //compile with
 //  gcc -o eddy eddy.c `pkg-config --cflags --libs eina efl elementary eeze`
 
-
-/* TODO:
- *
- * Get drive selector working properly
- *
- * Get drive checker working
- *
- * Get dd button working
- *
- * Makefile
- *
- * Manpage
- *
- * --help option
- *
- * .desktop file
- *
- */
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
 #endif
