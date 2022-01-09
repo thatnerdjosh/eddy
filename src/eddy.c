@@ -41,6 +41,16 @@
 
 #define BUFFER_SIZE 1024
 
+int _eddy_log_dom;
+#define EDDY_DEFAULT_LOG_COLOR EINA_COLOR_CYAN
+
+#define CRI(...)      EINA_LOG_DOM_CRIT(_eddy_log_dom, __VA_ARGS__)
+#define ERR(...)      EINA_LOG_DOM_ERR(_eddy_log_dom, __VA_ARGS__)
+#define WRN(...)      EINA_LOG_DOM_WARN(_eddy_log_dom, __VA_ARGS__)
+#define INF(...)      EINA_LOG_DOM_INFO(_eddy_log_dom, __VA_ARGS__)
+#define DBG(...)      EINA_LOG_DOM_DBG(_eddy_log_dom, __VA_ARGS__)
+
+Eina_Bool debug=EINA_FALSE;
 Evas_Object *entry2, *lb2, *pb, *hv;
 
 
@@ -108,7 +118,8 @@ iso_chosen(void *data, Evas_Object *obj, void *event_info)
 	char buf[PATH_MAX];
 	Evas_Object *lb1 = data;
 
-	elm_fileselector_selected_set( obj, file);
+	if (debug) INF("File: %s", file);
+	// elm_fileselector_selected_set( obj, file);
 
 	//filetype filter
 	if(strcmp(file_get_ext(file), "iso")){
@@ -298,6 +309,13 @@ static void find_drives()
 
 EAPI_MAIN int elm_main(int argc, char **argv)
 {
+	_eddy_log_dom = eina_log_domain_register("eddy", EDDY_DEFAULT_LOG_COLOR);
+	if (_eddy_log_dom < 0)
+	{
+		EINA_LOG_ERR("Unable to create a log domain.");
+		exit(-1);
+	}
+	eina_log_domain_level_set("eddy", EINA_LOG_LEVEL_INFO);
    elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 #ifdef ENABLE_NLS
    elm_app_compile_locale_set(LOCALEDIR);
@@ -321,6 +339,11 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 		if(strcmp(argv[i], "-f") == 0){
 			hold = i+1;
 			snprintf(path,sizeof(path),"<align=left>%s",argv[hold]);
+		}
+		if(strcmp(argv[i], "-d") == 0)
+		{
+			debug = EINA_TRUE;
+			INF("DEBUG ON");
 		}
 		if(strcmp(argv[i], "-h") == 0){
 			printf("Help not implemented here yet.  Good luck!\n");
@@ -470,7 +493,8 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 	evas_object_show(win);
 
 	elm_run();
-
+	eina_log_domain_unregister(_eddy_log_dom);
+	_eddy_log_dom = -1;
 	return 0;
 }
 ELM_MAIN()
