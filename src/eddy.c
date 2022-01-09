@@ -461,8 +461,10 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 	evas_object_show(win);
 
 	elm_run();
+
 	eina_log_domain_unregister(_eddy_log_dom);
 	_eddy_log_dom = -1;
+	free(inst);
 	return 0;
 }
 ELM_MAIN()
