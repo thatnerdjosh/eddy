@@ -165,7 +165,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 		elm_progressbar_pulse(inst->busy, EINA_FALSE);
 		return;
 	}
-  INF("COMMAND %s", command);
+  if (debug) INF("COMMAND %s", command);
 	/* execute md5 check. */
 	childHandle = ecore_exe_pipe_run(command,
 					ECORE_EXE_PIPE_WRITE |
