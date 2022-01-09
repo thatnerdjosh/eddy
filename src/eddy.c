@@ -85,7 +85,7 @@ iso_chosen(void *data, Evas_Object *obj, void *event_info)
 {
 	EINA_SAFETY_ON_NULL_RETURN(event_info);
 	EINA_SAFETY_ON_NULL_RETURN(data);
-	EINA_SAFETY_ON_NULL_RETURN(data);
+	EINA_SAFETY_ON_NULL_RETURN(obj);
 
 	Eddy_GUI *inst = data;
 	const char *file = event_info;
