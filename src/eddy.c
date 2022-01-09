@@ -41,7 +41,6 @@
 
 #define BUFFER_SIZE 1024
 
-
 Evas_Object *entry2, *lb2, *pb, *hv;
 
 
@@ -50,11 +49,11 @@ Evas_Object *entry2, *lb2, *pb, *hv;
 static Eina_Bool
 md5_msg_handler(void *d EINA_UNUSED, int t EINA_UNUSED, void *event)
 {
-	Ecore_Exe_Event_Data *dataFromProcess = (Ecore_Exe_Event_Data *)event;
-	int i;
-	int j=0;
-	char msg[BUFFER_SIZE];
-	char result[PATH_MAX];//final parsed result
+	EINA_SAFETY_ON_NULL_RETURN_VAL(event, ECORE_CALLBACK_DONE);
+
+	Ecore_Exe_Event_Data *dataFromProcess = (Ecore_Exe_Event_Data *) event;
+	int i, j = 0;
+	char msg[BUFFER_SIZE], result[PATH_MAX];
 	char str[] = "<align=left>Md5sum checked: ";
 
 	if (dataFromProcess->size >= (BUFFER_SIZE - 1)){
@@ -100,13 +99,16 @@ file_get_ext(const char *file)
 
 /* get the ISO selected and set it to a visible entry*/
 static void
-iso_chosen(void *data, Evas_Object *obj EINA_UNUSED, void *event_info)
+iso_chosen(void *data, Evas_Object *obj, void *event_info)
 {
 	EINA_SAFETY_ON_NULL_RETURN(event_info);
+	EINA_SAFETY_ON_NULL_RETURN(obj);
 
 	const char *file = event_info;
 	char buf[PATH_MAX];
 	Evas_Object *lb1 = data;
+
+	elm_fileselector_selected_set( obj, file);
 
 	//filetype filter
 	if(strcmp(file_get_ext(file), "iso")){
