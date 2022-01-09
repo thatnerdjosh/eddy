@@ -93,7 +93,9 @@ iso_chosen(void *data, Evas_Object *obj, void *event_info)
 
 	if (debug) INF("File: %s", file);
 	// elm_fileselector_selected_set( obj, file);
-
+	if (strlen(elm_object_text_get(inst->md5)))
+		elm_object_text_set(inst->md5, "");
+  
 	//filetype filter
 	if(strcmp(file_get_ext(file), "iso")){
 		printf("Wrong file type!  Try again.\n");
