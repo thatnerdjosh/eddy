@@ -126,7 +126,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	char command[PATH_MAX+26];//terminal command
 
 	const char *tmpPath = elm_object_text_get(inst->iso);
-	if (debug) INF("WTF %s", tmpPath);
+	if (debug) INF("ISO path %s", tmpPath);
 
 	/* remove extra <align=left> bit */
 	isoPath = elm_entry_markup_to_utf8(tmpPath);
