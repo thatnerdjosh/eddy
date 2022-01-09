@@ -10,6 +10,7 @@
 	* Gareth Williams       <gareth.m.williams@gmail.com>        *
 	*                                                            *
 	* Robert Wiley          <ylee@bodhilinux.com>                *
+	* Štefan Uram           <thewaiter@centrum.sk>               *
 	*                                                            *
 	*                                                            *
 	* Official upstream:  https://github.com/Deepspeed/eddy      *
