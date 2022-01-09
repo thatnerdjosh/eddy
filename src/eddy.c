@@ -35,10 +35,11 @@ md5_msg_handler(void *data, int t EINA_UNUSED, void *event)
 {
 	EINA_SAFETY_ON_NULL_RETURN_VAL(event, ECORE_CALLBACK_DONE);
 	EINA_SAFETY_ON_NULL_RETURN_VAL(data, ECORE_CALLBACK_DONE);
+
 	Eddy_GUI * inst = data;
 	Ecore_Exe_Event_Data *dataFromProcess = (Ecore_Exe_Event_Data *) event;
 	int i, j = 0;
-	char msg[BUFFER_SIZE], result[PATH_MAX];
+	char msg[BUFFER_SIZE] = {0}, result[PATH_MAX];
 	char str[] = "<align=left>Md5sum checked: ";
 
 	if (dataFromProcess->size >= (BUFFER_SIZE - 1)){
@@ -48,24 +49,20 @@ md5_msg_handler(void *data, int t EINA_UNUSED, void *event)
 
 	strncpy(msg, dataFromProcess->data, dataFromProcess->size);
 	msg[dataFromProcess->size] = 0;
-	printf("%s\n", msg);
 
-	if (strcmp(msg, "quit") == 0){
-		printf("My child said to me, QUIT!\n");
-		ecore_main_loop_quit();
-	}
-	else{  //set results
-		i = strlen(msg);
-		while(msg[i] != ':')//iterate backwards to :
-			i--;
+	if (debug) INF("%s\n", msg);
 
-		for(i += 2; msg[i] != '\0'; i++, j++)//store result separately
-			result[j] = msg[i];
+	i = strlen(msg);
+	while(msg[i] != ':')//iterate backwards to :
+		i--;
 
-		strcat(str, result);//format text for label
+	for(i += 2; msg[i] != '\0'; i++, j++)//store result separately
+		result[j] = msg[i];
 
-		elm_object_text_set( inst->md5, str);//show test results
-	}
+	strcat(str, result);//format text for label
+
+	elm_object_text_set( inst->md5, str);//show test results
+
 	elm_progressbar_pulse(inst->busy, EINA_FALSE);
 	return ECORE_CALLBACK_DONE;
 }
@@ -145,7 +142,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 
 	//build terminal command
 	snprintf(md5Path, PATH_MAX+7,  "%s.md5", isoPath);
-	snprintf(command,PATH_MAX+25,"cd \"%s\" && md5sum -c \"%s\"",folderPath, md5Path);
+	snprintf(command,PATH_MAX+29,"cd \"%s\" && md5sum -c \"%s\"",folderPath, md5Path);
 	if (debug) INF("MD5 PATH %s", md5Path);
 	free(isoPath);
 	free(folderPath);
