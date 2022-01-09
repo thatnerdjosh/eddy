@@ -1,6 +1,6 @@
 inc = include_directories('.')
 executable('eddy', [
-    'eddy.c'
+    'eddy.c', 'eddy.h'
   ],
   include_directories: inc,
   dependencies       : [ deps, eeze_dep, dep_intl ] ,
