@@ -95,7 +95,7 @@ iso_chosen(void *data, Evas_Object *obj, void *event_info)
 	// elm_fileselector_selected_set( obj, file);
 	if (strlen(elm_object_text_get(inst->md5)))
 		elm_object_text_set(inst->md5, "");
-  
+
 	//filetype filter
 	if(strcmp(file_get_ext(file), "iso")){
 		printf("Wrong file type!  Try again.\n");
@@ -230,13 +230,13 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 	evas_object_show(label);
 
 	scroller = elm_scroller_add(help);
-	evas_object_size_hint_weight_set(scroller, 
+	evas_object_size_hint_weight_set(scroller,
 					  EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	elm_win_resize_object_add(help, scroller);
 	evas_object_show(scroller);
 	elm_object_content_set(scroller, label);
 	elm_scroller_bounce_set(scroller, EINA_TRUE, EINA_FALSE);
-	elm_scroller_policy_set(scroller, 
+	elm_scroller_policy_set(scroller,
 				ELM_SCROLLER_POLICY_ON, ELM_SCROLLER_POLICY_ON);
 	elm_scroller_propagate_events_set(scroller, EINA_TRUE);
 	elm_scroller_page_relative_set(scroller, 0, 1);
@@ -261,7 +261,7 @@ find_drives(Evas_Object *hv)
 	eeze_disk_mount_point_get (Eeze_Disk *disk)
 
 	*/
-	
+
 	//Need drive size, /dev/sdx address, filesystem, and mounted state
 	Eina_List *drives = eeze_udev_find_by_type(EEZE_UDEV_TYPE_DRIVE_REMOVABLE,
 						    NULL);
@@ -302,7 +302,7 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 
 	/* look for and perform any cli args
 	 * will run with './eddy -f /path/to/file.iso' */
-	char path[PATH_MAX]; 
+	char path[PATH_MAX];
 	int hold = -10;
 
 	for (int i=0; argv[i] != NULL; i++){
@@ -394,9 +394,9 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 
 	elm_table_pack(table, inst->usb, 0,3,1,1);
 	evas_object_show(inst->usb);
-	
+
 	find_drives(inst->usb);
-	
+
 	/* USB Check Button */
 	usb_check_bt = elm_button_add(table);
 	elm_button_autorepeat_set(usb_check_bt, EINA_FALSE);
