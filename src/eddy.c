@@ -10,7 +10,6 @@
 	* Gareth Williams       <gareth.m.williams@gmail.com>        *
 	*                                                            *
 	* Robert Wiley          <ylee@bodhilinux.com>                *
-	* Štefan Uram           <thewaiter@centrum.sk>               *
 	*                                                            *
 	*                                                            *
 	* Official upstream:  https://github.com/Deepspeed/eddy      *
@@ -26,7 +25,6 @@
 
 /* specific log domain to help debug only eddy */
 int _eddy_log_dom = -1;
-Evas_Object *hv;
 
 
 /* function for child process to finish md5 check and show results properly */
@@ -247,7 +245,8 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 	evas_object_show(help);
 }
 
-static void find_drives()
+static void
+find_drives(Evas_Object *hv)
 {
 	//this needs to be way better.  Gotta use more eeze stuff.
 	/*
@@ -267,9 +266,9 @@ static void find_drives()
 						    NULL);
 	const char *drv;
 
-	EINA_LIST_FREE(drives,drv){
+	EINA_LIST_FREE(drives, drv){
 //		printf("DRIVE: %s\n",drv);
-		elm_hoversel_item_add(hv,drv,NULL,ELM_ICON_NONE,NULL,drv);
+		elm_hoversel_item_add(hv, drv, NULL, ELM_ICON_NONE, NULL, drv);
 		eina_stringshare_del(drv);//free them as we list them in hv
 	}
 }
@@ -386,16 +385,16 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 
 
 	/* USB chooser hoversel */
-	hv = elm_hoversel_add(win);
-	elm_hoversel_hover_parent_set(hv, win);
-	elm_hoversel_horizontal_set(hv, EINA_FALSE);
-	elm_object_text_set(hv, _("Choose a drive"));
-	elm_hoversel_auto_update_set(hv, EINA_TRUE);
+	inst->usb = elm_hoversel_add(win);
+	elm_hoversel_hover_parent_set(inst->usb, win);
+	elm_hoversel_horizontal_set(inst->usb, EINA_FALSE);
+	elm_object_text_set(inst->usb, _("Choose a drive"));
+	elm_hoversel_auto_update_set(inst->usb, EINA_TRUE);
+
+	elm_table_pack(table, inst->usb, 0,3,1,1);
+	evas_object_show(inst->usb);
 	
-	elm_table_pack(table, hv, 0,3,1,1);
-	evas_object_show(hv);
-	
-	find_drives();
+	find_drives(inst->usb);
 	
 	/* USB Check Button */
 	usb_check_bt = elm_button_add(table);
