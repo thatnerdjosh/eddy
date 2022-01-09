@@ -145,7 +145,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 
 	//build terminal command
 	snprintf(md5Path, PATH_MAX+7,  "%s.md5", isoPath);
-	snprintf(command,PATH_MAX+25,"cd %s && md5sum -c %s",folderPath,md5Path);
+	snprintf(command,PATH_MAX+25,"cd \"%s\" && md5sum -c \"%s\"",folderPath, md5Path);
 	if (debug) INF("MD5 PATH %s", md5Path);
 	free(isoPath);
 	free(folderPath);
@@ -165,7 +165,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 		elm_progressbar_pulse(inst->busy, EINA_FALSE);
 		return;
 	}
-
+  INF("COMMAND %s", command);
 	/* execute md5 check. */
 	childHandle = ecore_exe_pipe_run(command,
 					ECORE_EXE_PIPE_WRITE |
