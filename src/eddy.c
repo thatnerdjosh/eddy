@@ -11,6 +11,7 @@
 	*                                                            *
 	* Robert Wiley          <ylee@bodhilinux.com>                *
 	*                                                            *
+	* Štefan Uram <thewaiter@centrum.sk>                         *
 	*                                                            *
 	* Official upstream:  https://github.com/Deepspeed/eddy      *
 	*                                                            *
