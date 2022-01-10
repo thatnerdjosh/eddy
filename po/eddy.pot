@@ -1,6 +1,6 @@
-# SOME DESCRIPTIVE TITLE.
+# Eddy - Live USB Utility.
 # This file is put in the public domain.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Doug Yanez <Deepspeed@bodhilinux.com>, 2021.
 #
 #, fuzzy
 msgid ""

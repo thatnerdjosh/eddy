@@ -23,13 +23,14 @@
 //  gcc -o eddy eddy.c `pkg-config --cflags --libs eina efl elementary eeze`
 
 #include "eddy.h"
+# include <Eeze_Disk.h>
 
 /* specific log domain to help debug only eddy */
 int _eddy_log_dom = -1;
 
 
-/* function for child process to finish md5 check and show results properly */
 
+/* function for child process to finish md5 check and show results properly */
 static Eina_Bool
 md5_msg_handler(void *data, int t EINA_UNUSED, void *event)
 {
@@ -61,11 +62,14 @@ md5_msg_handler(void *data, int t EINA_UNUSED, void *event)
 
 	strcat(str, result);//format text for label
 
-	elm_object_text_set( inst->md5, str);//show test results
+	elm_object_text_set(inst->md5, str);//show test results
 
 	elm_progressbar_pulse(inst->busy, EINA_FALSE);
 	return ECORE_CALLBACK_DONE;
 }
+
+
+
 
 /* return file extension of a file path */
 static const char *
@@ -78,6 +82,9 @@ file_get_ext(const char *file)
 	free(base);
 	return file + i*sizeof(char);
 }
+
+
+
 
 /* get the ISO selected and set it to a visible entry*/
 static void
@@ -106,8 +113,10 @@ iso_chosen(void *data, Evas_Object *obj, void *event_info)
 	elm_object_text_set(inst->iso, buf);
 }
 
-/* Check selected md5 file against ISO.  ISO must be in same folder. */
 
+
+
+/* Check selected md5 file against ISO.  ISO must be in same folder. */
 static void
 md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 {
@@ -187,6 +196,9 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	ecore_event_handler_add(ECORE_EXE_EVENT_DATA, md5_msg_handler, data);
 }
 
+
+
+
 static void
 usb_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 {
@@ -195,6 +207,9 @@ usb_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 
 	/* use ecore_exe to run badblocks command on chosen USB drive. */
 }
+
+
+
 
 static void
 make_usb(void *data, Evas_Object *o EINA_UNUSED, void *e)
@@ -206,6 +221,9 @@ make_usb(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	 * onto the selected drive from the genlist using dd
 	 */
 }
+
+
+
 
 /* help window */
 static void
@@ -246,6 +264,9 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 	evas_object_show(help);
 }
 
+
+
+
 static void
 find_drives(Evas_Object *hv)
 {
@@ -263,16 +284,25 @@ find_drives(Evas_Object *hv)
 	*/
 
 	//Need drive size, /dev/sdx address, filesystem, and mounted state
-	Eina_List *drives = eeze_udev_find_by_type(EEZE_UDEV_TYPE_DRIVE_REMOVABLE,
-						    NULL);
+	Eina_List *drives=eeze_udev_find_by_type(EEZE_UDEV_TYPE_DRIVE_REMOVABLE,
+						  NULL);
 	const char *drv;
+	char text[PATH_MAX];
+	
 
 	EINA_LIST_FREE(drives, drv){
+		Eeze_Disk *disk = eeze_disk_new(drv);
 //		printf("DRIVE: %s\n",drv);
-		elm_hoversel_item_add(hv, drv, NULL, ELM_ICON_NONE, NULL, drv);
+		const char *devpath = eeze_disk_devpath_get(disk);
+		const char *fstype = eeze_disk_fstype_get(disk);
+		snprintf(text, sizeof(text), "%s %s", devpath, fstype);
+		elm_hoversel_item_add(hv, text,NULL,ELM_ICON_NONE,NULL,text);
+		eeze_disk_free(disk);
 		eina_stringshare_del(drv);//free them as we list them in hv
 	}
 }
+
+
 
 
 EAPI_MAIN int elm_main(int argc, char **argv)
@@ -296,12 +326,10 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 
 	Evas_Object *win, *table;
 	Evas_Object *iso_bt, *md5_check_bt, *usb_check_bt, *dd_bt, *help_bt;
-	// Elm_Genlist_Item_Class *glist;
 	Eddy_GUI *inst = calloc(1, sizeof(Eddy_GUI));
 	EINA_SAFETY_ON_NULL_RETURN_VAL(inst, -1);
 
-	/* look for and perform any cli args
-	 * will run with './eddy -f /path/to/file.iso' */
+	/* handle cli args*/
 	char path[PATH_MAX];
 	int hold = -10;
 
@@ -469,3 +497,21 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 	return 0;
 }
 ELM_MAIN()
+
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ *
+ */
