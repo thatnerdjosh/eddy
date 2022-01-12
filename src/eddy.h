@@ -1,3 +1,6 @@
+#ifndef EDDY_H
+# define EDDY_H
+
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
 #endif
@@ -37,3 +40,5 @@ typedef struct _Eddy_GUI
 } Eddy_GUI;
 
 Eina_Bool debug=EINA_FALSE;
+
+#endif
