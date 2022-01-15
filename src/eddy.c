@@ -232,6 +232,7 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
    Evas_Object *help, *scroller, *label;
 
 	/* help main window */
+
 	help = elm_win_util_standard_add("Help", "Help");
 	elm_win_autodel_set(help, EINA_TRUE);
 	evas_object_size_hint_min_set(help,270,150); //min size not working??
@@ -240,11 +241,11 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 	elm_object_text_set(label, "To perform an MD5sum check on your iso,<br>\
 	both files (.iso and .md5) MUST be in the<br>\
 	same folder and you must select an iso.<br><br>\
-	Opening Eddy from the command line using: <br>\
-	./eddy -f ~/path/to/iso-file.iso<br>\
-	will fill the iso field in Eddy<br><br>\
+	Command Line arguments: <br>\
+	eddy -f ~/path/to/iso-file.iso - Fill the iso field in Eddy<br>\
+	eddy -h - help items<br>\
 	Expect more features as time goes on.");
-	efl_gfx_hint_align_set(label,0.0,1);
+	efl_gfx_hint_align_set(label,0.0,0.0);
 	evas_object_show(label);
 
 	scroller = elm_scroller_add(help);
@@ -260,7 +261,6 @@ help_info(void *data EINA_UNUSED,Evas_Object *object EINA_UNUSED,void *event_inf
 	elm_scroller_page_relative_set(scroller, 0, 1);
 	elm_scroller_region_show(scroller, 50, 50, 200, 200);
 	evas_object_resize(help, 270,150);
-
 	evas_object_show(help);
 }
 
