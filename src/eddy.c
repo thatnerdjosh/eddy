@@ -334,19 +334,21 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 	int hold = -10;
 
 	for (int i=0; argv[i] != NULL; i++){
-		if(strcmp(argv[i], "-f") == 0){
+		if((strcmp(argv[i], "-f") == 0) || (strcmp(argv[i], "--file") == 0)){
 			hold = i+1;
 			snprintf(path,sizeof(path),"<align=left>%s",argv[hold]);
 		}
-		if(strcmp(argv[i], "-d") == 0)
+		if((strcmp(argv[i], "-d") == 0) || (strcmp(argv[i], "--debug") == 0))
 		{
 			debug = EINA_TRUE;
 			INF("DEBUG ON");
 		}
-		if(strcmp(argv[i], "-h") == 0){
-			printf("Help not implemented here yet.  Good luck!\n");
+		if((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)){
+			printf("flags:\n-h or --help.....help\n-f or --file.....path/to/iso\n-d or --debug....debug\n\n");
 			return 0;
 		}
+		//else
+		//printf("invalid argument\n");
 	}
 
 	//set up window
