@@ -97,7 +97,11 @@ file_get_ext(const char *file)
 	EINA_SAFETY_ON_NULL_RETURN_VAL(file, NULL);
 
 	char *base = ecore_file_strip_ext(file);
+
 	int i = strlen(base) + 1;
+	if (i == strlen(file) + 1)
+		return NULL; // No file extension.
+
 	free(base);
 	return file + i*sizeof(char);
 }
@@ -123,7 +127,8 @@ iso_chosen(void *data, Evas_Object *obj, void *event_info)
 		elm_object_text_set(inst->md5, "");
 
 	//filetype filter
-	if(strcmp(file_get_ext(file), "iso")){
+	char *ext = file_get_ext(file);
+	if(ext == NULL || strcmp(ext, "iso") != 0){
 		printf("Wrong file type!  Try again.\n");
 		elm_object_text_set(inst->iso,"<align=left>Please choose .iso file");
 		return;
