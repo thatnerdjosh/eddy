@@ -23,12 +23,10 @@
 //  gcc -o eddy eddy.c `pkg-config --cflags --libs eina efl elementary eeze`
 
 #include "eddy.h"
-# include <Eeze_Disk.h>
+#include <Eeze_Disk.h>
 
 /* specific log domain to help debug only eddy */
 int _eddy_log_dom = -1;
-
-
 
 /* function for child process to finish md5 check and show results properly */
 static Eina_Bool
@@ -37,7 +35,7 @@ md5_msg_handler(void *data, int t, void *event)
 	EINA_SAFETY_ON_NULL_RETURN_VAL(event, ECORE_CALLBACK_DONE);
 	EINA_SAFETY_ON_NULL_RETURN_VAL(data, ECORE_CALLBACK_DONE);
 
-	Eddy_GUI * inst = data;
+	Eddy_GUI *inst = data;
 	if (t == ECORE_EXE_EVENT_ERROR) {
 		// FIXME: Why is this output tripled after first time?
 		ERR("md5sum encountered an error.\n");
@@ -68,7 +66,8 @@ md5_msg_handler(void *data, int t, void *event)
 
 	// Calculate existing length of the result string
 	size_t existing_len = strlen(result);
-	size_t result_size = strlen(msg + colon_pos + 2); // +2 to skip ':' and space
+	char *result_msg = msg + colon_pos + 2;
+	size_t result_size = strlen(result_msg); // +2 to skip ':' and space
 
 	// Check for overflow before appending
 	if (existing_len + result_size + 1 > BUFFER_SIZE) {
@@ -77,16 +76,13 @@ md5_msg_handler(void *data, int t, void *event)
 	}
 
 	// Extract the desired portion of the message after the colon
-	strncat(result, msg + colon_pos + 2, result_size);
+	strncat(result, result_msg, result_size);
 	result[existing_len + result_size] = '\0'; // Ensure null termination
 
 	elm_object_text_set(inst->md5, result); //show test results
 	elm_progressbar_pulse(inst->busy, EINA_FALSE);
 	return ECORE_CALLBACK_DONE;
 }
-
-
-
 
 /* return file extension of a file path */
 static const char *
@@ -97,15 +93,12 @@ file_get_ext(const char *file)
 	char *base = ecore_file_strip_ext(file);
 
 	int i = strlen(base) + 1;
-	if (i == strlen(file) + 1)
+	if (strlen(file) == (i - 1))
 		return NULL; // No file extension.
 
 	free(base);
 	return file + i*sizeof(char);
 }
-
-
-
 
 /* get the ISO selected and set it to a visible entry*/
 static void
@@ -125,7 +118,7 @@ iso_chosen(void *data, Evas_Object *obj, void *event_info)
 		elm_object_text_set(inst->md5, "");
 
 	//filetype filter
-	char *ext = file_get_ext(file);
+	const char *ext = file_get_ext(file);
 	if(ext == NULL || strcmp(ext, "iso") != 0){
 		printf("Wrong file type!  Try again.\n");
 		elm_object_text_set(inst->iso,"<align=left>Please choose .iso file");
@@ -134,9 +127,6 @@ iso_chosen(void *data, Evas_Object *obj, void *event_info)
 	snprintf(buf, sizeof(buf), "<align=left>%s", file);
 	elm_object_text_set(inst->iso, buf);
 }
-
-
-
 
 /* Check selected md5 file against ISO.  ISO must be in same folder. */
 static void
@@ -182,7 +172,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	/* set folderPath directory */
 	folderPath = ecore_file_dir_get(isoPath);
 
-    const char *format_string = "cd \"%s\" && md5sum -c \"%s\"";
+	const char *format_string = "cd \"%s\" && md5sum -c \"%s\"";
 	size_t commandLen = strlen(format_string) + strlen(folderPath) + strlen(inst->md5Path) + 3; // +3 for null terminators
 	inst->md5Command = malloc(commandLen);
 	if (!inst->md5Command) {
@@ -327,7 +317,6 @@ find_drives(Evas_Object *hv)
 						  NULL);
 	const char *drv;
 	char text[PATH_MAX];
-	
 
 	EINA_LIST_FREE(drives, drv){
 		Eeze_Disk *disk = eeze_disk_new(drv);
@@ -353,15 +342,15 @@ EAPI_MAIN int elm_main(int argc, char **argv)
 		exit(-1);
 	}
 	eina_log_domain_level_set("eddy", EINA_LOG_LEVEL_INFO);
-   elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
+	elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
 #ifdef ENABLE_NLS
-   elm_app_compile_locale_set(LOCALEDIR);
+	elm_app_compile_locale_set(LOCALEDIR);
 #endif
-   elm_app_info_set(elm_main, "eddy", "COPYING");
+	elm_app_info_set(elm_main, "eddy", "COPYING");
 
-   setlocale(LC_ALL, "");
-   bindtextdomain(PACKAGE, LOCALE_DIR);
-   textdomain(PACKAGE);
+	setlocale(LC_ALL, "");
+	bindtextdomain(PACKAGE, LOCALE_DIR);
+	textdomain(PACKAGE);
 
 	Evas_Object *win, *table;
 	Evas_Object *iso_bt, *md5_check_bt, *usb_check_bt, *dd_bt, *help_bt;
