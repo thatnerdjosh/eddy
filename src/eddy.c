@@ -32,12 +32,19 @@ int _eddy_log_dom = -1;
 
 /* function for child process to finish md5 check and show results properly */
 static Eina_Bool
-md5_msg_handler(void *data, int t EINA_UNUSED, void *event)
+md5_msg_handler(void *data, int t, void *event)
 {
 	EINA_SAFETY_ON_NULL_RETURN_VAL(event, ECORE_CALLBACK_DONE);
 	EINA_SAFETY_ON_NULL_RETURN_VAL(data, ECORE_CALLBACK_DONE);
 
 	Eddy_GUI * inst = data;
+	if (t == ECORE_EXE_EVENT_ERROR) {
+		// FIXME: Why is this output tripled after first time?
+		ERR("md5sum encountered an error.\n");
+		elm_progressbar_pulse(inst->busy, EINA_FALSE);
+		return ECORE_CALLBACK_DONE;
+	}
+
 	Ecore_Exe_Event_Data *dataFromProcess = (Ecore_Exe_Event_Data *) event;
 	int i, j = 0;
 	char msg[BUFFER_SIZE] = {0}, result[PATH_MAX];
@@ -173,12 +180,12 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 		elm_progressbar_pulse(inst->busy, EINA_FALSE);
 		return;
 	}
-  if (debug) INF("COMMAND %s", command);
-	/* execute md5 check. */
+
+	if (debug) INF("COMMAND %s", command);
 	childHandle = ecore_exe_pipe_run(command,
-					ECORE_EXE_PIPE_WRITE |
 					ECORE_EXE_PIPE_READ_LINE_BUFFERED |
-					ECORE_EXE_PIPE_READ, NULL);
+					ECORE_EXE_PIPE_READ |
+					ECORE_EXE_PIPE_ERROR, NULL);
 
 	if (childHandle == NULL){
 		fprintf(stderr, "Could not create a child process!\n");
@@ -190,10 +197,11 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 
 	if (childPid == -1)
 		fprintf(stderr, "Could not retrieve the PID!\n");
-//	else
-//		printf("Child process PID:%u\n",(unsigned int)childPid);
+	else
+		printf("Child process PID:%u\n",(unsigned int)childPid);
 
 	ecore_event_handler_add(ECORE_EXE_EVENT_DATA, md5_msg_handler, data);
+	ecore_event_handler_add(ECORE_EXE_EVENT_ERROR, md5_msg_handler, data);
 }
 
 
