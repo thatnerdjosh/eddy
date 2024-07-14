@@ -60,17 +60,29 @@ md5_msg_handler(void *data, int t, void *event)
 
 	if (debug) INF("%s\n", msg);
 
-	i = strlen(msg);
-	while(msg[i] != ':')//iterate backwards to :
-		i--;
+	size_t colon_pos = strrchr(msg, ':') - msg;
+	// Check if a colon was found
+	if (colon_pos == (size_t)-1) {
+		INF("md5sum message format unexpected (missing colon)\n");
+		elm_progressbar_pulse(inst->busy, EINA_FALSE);
+		return ECORE_CALLBACK_DONE;
+	}
 
-	for(i += 2; msg[i] != '\0'; i++, j++)//store result separately
-		result[j] = msg[i];
+	// Calculate existing length of the result string
+	size_t existing_len = strlen(result);
+	size_t result_size = strlen(msg + colon_pos + 2); // +2 to skip ':' and space
 
-	strcat(str, result);//format text for label
+	// Check for overflow before appending
+	if (existing_len + result_size + 1 > BUFFER_SIZE) {
+	  // Handle overflow (e.g., truncate or log error)
+	  return ECORE_CALLBACK_DONE;
+	}
 
-	elm_object_text_set(inst->md5, str);//show test results
+	// Extract the desired portion of the message after the colon
+	strncat(result, msg + colon_pos + 2, result_size);
+	result[existing_len + result_size] = '\0'; // Ensure null termination
 
+	elm_object_text_set(inst->md5, result); //show test results
 	elm_progressbar_pulse(inst->busy, EINA_FALSE);
 	return ECORE_CALLBACK_DONE;
 }
