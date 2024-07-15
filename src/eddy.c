@@ -46,11 +46,9 @@ md5_msg_handler(void *data, int t, void *event)
 	}
 
 	Ecore_Exe_Event_Data *dataFromProcess = (Ecore_Exe_Event_Data *) event;
-	int i, j = 0;
-	char msg[BUFFER_SIZE] = {0}, result[PATH_MAX];
-	char str[] = "<align=left>Md5sum checked: ";
+	char msg[BUFFER_SIZE] = {0}, result[BUFFER_SIZE] = "<align=left>Md5sum checked: ";
 
-	if (dataFromProcess->size >= (BUFFER_SIZE - 1)){
+	if (dataFromProcess->size >= (BUFFER_SIZE - strlen(result) - 1)){
 		printf("Data too big for bugger. error\n");
 		return ECORE_CALLBACK_DONE;
 	}
