@@ -10,5 +10,6 @@ foreach name : unit_test_files
 		include_directories: inc,
 		dependencies: bodhilib_dep,
 	)
-    test(name, exe)
+	
+	test(name, exe)
 endforeach
