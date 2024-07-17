@@ -2,3 +2,9 @@ option('nls',
         type: 'boolean',
         value: true,
         description: 'enable localization: (default=true)')
+
+option('enable-tests',
+  type : 'boolean',
+  value : true,
+  description : 'Enables tests.'
+)
