@@ -22,6 +22,7 @@
 //compile with
 //  gcc -o eddy eddy.c `pkg-config --cflags --libs eina efl elementary eeze`
 
+#include <stdbool.h>
 #include "eddy.h"
 #include <Eeze_Disk.h>
 
@@ -100,6 +101,14 @@ file_get_ext(const char *file)
 	return file + i*sizeof(char);
 }
 
+static bool
+is_iso_chosen_and_valid(const char *file)
+{
+	if (debug) INF("ISO Path: %s", file);
+	const char *ext = file_get_ext(file);
+	return (ext != NULL && strcmp(ext, "iso") == 0);
+}
+
 /* get the ISO selected and set it to a visible entry*/
 static void
 iso_chosen(void *data, Evas_Object *obj, void *event_info)
@@ -110,20 +119,16 @@ iso_chosen(void *data, Evas_Object *obj, void *event_info)
 
 	Eddy_GUI *inst = data;
 	const char *file = event_info;
-	char buf[PATH_MAX];
-
-	if (debug) INF("File: %s", file);
-	// elm_fileselector_selected_set( obj, file);
+	char buf[PATH_MAX]; // TODO: Clean this up...
 	if (strlen(elm_object_text_get(inst->md5)))
 		elm_object_text_set(inst->md5, "");
 
-	//filetype filter
-	const char *ext = file_get_ext(file);
-	if(ext == NULL || strcmp(ext, "iso") != 0){
+	if(!is_iso_chosen_and_valid(file)){
 		printf("Wrong file type!  Try again.\n");
 		elm_object_text_set(inst->iso,"<align=left>Please choose .iso file");
 		return;
 	}
+
 	snprintf(buf, sizeof(buf), "<align=left>%s", file);
 	elm_object_text_set(inst->iso, buf);
 }
@@ -139,16 +144,14 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	inst->md5Path = NULL; // Reset md5Path
 
 	const char *tmpPath = elm_object_text_get(inst->iso);
-	if (debug) INF("ISO path %s", tmpPath);
-	if(!strcmp(tmpPath, "<br>")){
-		printf("No .iso file chosen yet!\n");
+	if(!is_iso_chosen_and_valid(tmpPath)) {
+		ERR("No .iso file chosen yet!\n");
 		elm_object_text_set(inst->md5, "<align=left>No .iso file chosen yet!");
 		return;
 	}
 
 	elm_progressbar_pulse(inst->busy, EINA_TRUE);
 	elm_object_text_set(inst->md5, "<align=left>Checking ISO md5sum");
-
 
 	//ecore_exe stuff
 	pid_t childPid;
@@ -172,8 +175,8 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	/* set folderPath directory */
 	folderPath = ecore_file_dir_get(isoPath);
 
-	const char *format_string = "cd \"%s\" && md5sum -c \"%s\"";
-	size_t commandLen = strlen(format_string) + strlen(folderPath) + strlen(inst->md5Path) + 3; // +3 for null terminators
+	const char *cmdFmtString = "cd \"%s\" && md5sum -c \"%s\"";
+	size_t commandLen = strlen(cmdFmtString) + strlen(folderPath) + strlen(inst->md5Path) + 3; // +3 for null terminators
 	inst->md5Command = malloc(commandLen);
 	if (!inst->md5Command) {
 		// Handle memory allocation failure
@@ -181,14 +184,14 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	}
 
 	//build terminal command
-	snprintf(inst->md5Command, commandLen, "cd \"%s\" && md5sum -c \"%s\"", folderPath, inst->md5Path);
+	snprintf(inst->md5Command, commandLen, cmdFmtString, folderPath, inst->md5Path);
 	if (debug) INF("MD5 PATH %s", inst->md5Path);
 	free(isoPath);
 	free(folderPath);
 
 	//check for md5 file existence
 	if(!ecore_file_exists(inst->md5Path)){
-		printf("md5 file does not exist in this folder!\n");
+		INF("md5 file does not exist in this folder!\n");
 		elm_object_text_set(inst->md5, "<align=left>.md5 file not found!");
 		elm_progressbar_pulse(inst->busy, EINA_FALSE);
 		return;
@@ -196,7 +199,7 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 
 	//readability check
 	if(!ecore_file_can_read(inst->md5Path)){
-		printf("md5 file cannot be read!\n");
+		INF("md5 file cannot be read!\n");
 		elm_object_text_set(inst->md5,"<align=left>.md5 file unreadable!");
 		elm_progressbar_pulse(inst->busy, EINA_FALSE);
 		return;
@@ -204,12 +207,12 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 
 	if (debug) INF("COMMAND %s", inst->md5Command);
 	childHandle = ecore_exe_pipe_run(inst->md5Command,
-					ECORE_EXE_PIPE_READ_LINE_BUFFERED |
-					ECORE_EXE_PIPE_READ |
-					ECORE_EXE_PIPE_ERROR, NULL);
+		    ECORE_EXE_PIPE_READ_LINE_BUFFERED |
+		    ECORE_EXE_PIPE_READ |
+		    ECORE_EXE_PIPE_ERROR, NULL);
 
 	if (childHandle == NULL){
-		fprintf(stderr, "Could not create a child process!\n");
+		ERR("Could not create a child process!\n");
 		elm_progressbar_pulse(inst->busy, EINA_FALSE);
 		return;
 	}
@@ -217,9 +220,9 @@ md5_check(void *data, Evas_Object *o EINA_UNUSED, void *e)
 	childPid = ecore_exe_pid_get(childHandle);
 
 	if (childPid == -1)
-		fprintf(stderr, "Could not retrieve the PID!\n");
+		ERR("Could not retrieve the PID!\n");
 	else
-		printf("Child process PID:%u\n",(unsigned int)childPid);
+		INF("Child process PID:%u\n",(unsigned int)childPid);
 
 	ecore_event_handler_add(ECORE_EXE_EVENT_DATA, md5_msg_handler, data);
 	ecore_event_handler_add(ECORE_EXE_EVENT_ERROR, md5_msg_handler, data);
